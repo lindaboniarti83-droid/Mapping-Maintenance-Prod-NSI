@@ -1,0 +1,1060 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Mapping SPV & Foreman — Prod/MTC NSI 2026</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+:root{
+  --m:#ED1B24;--mt:#B9151B;--mp2:#FFF1F2;--mm:#FECACA;
+  --w:#fff;--bg:#F6F6F4;--ink:#1F2933;--ink2:#374151;--abu:#667085;
+  --bd:#E5E7EB;--sf:#F3F4F6;
+  --c1:#16A34A;--c2:#0284C7;--c3:#D97706;--c4:#6B7280;
+  --fd:'Georgia',serif;--fb:'Segoe UI',Arial,sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:var(--fb);background:var(--bg);color:var(--ink);font-size:14px;line-height:1.5;}
+
+/* TOPBAR */
+.topbar{background:var(--ink);height:54px;padding:0 22px;display:flex;align-items:center;
+  justify-content:space-between;position:sticky;top:0;z-index:200;border-bottom:3px solid var(--m);}
+.tb-l{display:flex;align-items:center;gap:10px;}
+.tb-logo{width:30px;height:30px;background:var(--m);border-radius:6px;
+  display:flex;align-items:center;justify-content:center;font:900 13px var(--fd);color:#fff;}
+.tb-title{color:#fff;font-size:13px;font-weight:700;line-height:1.2;}
+.tb-sub{color:rgba(255,255,255,.4);font-size:10px;}
+.tb-nav{display:flex;gap:1px;}
+.nb{background:transparent;border:none;color:rgba(255,255,255,.55);
+  padding:6px 10px;border-radius:6px;cursor:pointer;font-size:11px;font-weight:500;
+  transition:all .15s;white-space:nowrap;}
+.nb:hover{color:#fff;background:rgba(255,255,255,.08);}
+.nb.on{color:#fff;background:var(--m);}
+.badge-r{background:rgba(237,27,36,.2);border:1px solid rgba(237,27,36,.4);
+  color:#FCA5A5;font-size:10px;padding:3px 8px;border-radius:20px;letter-spacing:1px;text-transform:uppercase;}
+
+/* PAGES */
+.pg{display:none;padding:20px 22px;animation:fi .25s ease;}
+.pg.on{display:block;}
+@keyframes fi{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:translateY(0)}}
+.ph{margin-bottom:16px;}
+.ph h1{font-size:18px;font-weight:700;font-family:var(--fd);}
+.ph p{color:var(--abu);font-size:12px;margin-top:2px;}
+.ph-sub{font-size:11px;color:var(--abu);font-style:italic;margin-top:3px;}
+
+/* ALERTS */
+.al{border-radius:8px;padding:10px 13px;margin-bottom:13px;display:flex;gap:9px;}
+.al-w{background:#FFF7ED;border:1px solid #FED7AA;color:#9A3412;}
+.al-i{background:#EFF6FF;border:1px solid #BFDBFE;color:#1E40AF;}
+.al-r{background:var(--mp2);border:1px solid var(--mm);color:#991B1B;}
+.al-g{background:#F0FDF4;border:1px solid #BBF7D0;color:#166534;}
+.al-ik{font-size:14px;flex-shrink:0;margin-top:2px;}
+.al-tx{font-size:12px;line-height:1.5;}
+.al-tx strong{display:block;font-size:12px;margin-bottom:1px;font-weight:700;}
+
+/* GRID */
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:15px;margin-bottom:15px;}
+.g3{display:grid;grid-template-columns:repeat(3,1fr);gap:13px;margin-bottom:13px;}
+.g4{display:grid;grid-template-columns:repeat(4,1fr);gap:11px;margin-bottom:13px;}
+
+/* PANEL */
+.pn{background:#fff;border:1px solid var(--bd);border-radius:12px;padding:16px;margin-bottom:14px;}
+.pn-t{font-size:13px;font-weight:700;color:var(--ink);}
+.pn-s{font-size:11px;color:var(--abu);margin-top:2px;}
+.pn-h{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:12px;}
+.pn-title-bar{display:flex;align-items:center;gap:10px;margin-bottom:12px;}
+.pn-title-line{width:3px;height:32px;border-radius:2px;background:var(--m);flex-shrink:0;}
+.pn-title-content{flex:1;}
+
+/* KPI v2 */
+.kpi-row-v2{display:grid;grid-template-columns:repeat(6,1fr);gap:11px;margin-bottom:18px;}
+.kpi-v2{background:#fff;border:1px solid var(--bd);border-radius:12px;padding:15px 14px;position:relative;overflow:hidden;transition:box-shadow .2s;}
+.kpi-v2:hover{box-shadow:0 4px 18px rgba(0,0,0,.09);}
+.kpi-v2::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;}
+.kv-t::before{background:var(--m);}
+.kv-1::before{background:linear-gradient(90deg,#16A34A,#22C55E);}
+.kv-2::before{background:linear-gradient(90deg,#0284C7,#38BDF8);}
+.kv-3::before{background:linear-gradient(90deg,#D97706,#FBBF24);}
+.kv-4::before{background:linear-gradient(90deg,#6B7280,#9CA3AF);}
+.kv-5::before{background:linear-gradient(90deg,#7C3AED,#A78BFA);}
+.kpi-v2-icon{font-size:18px;margin-bottom:6px;}
+.kpi-v2-lb{font-size:10px;text-transform:uppercase;letter-spacing:.8px;color:var(--abu);margin-bottom:4px;}
+.kpi-v2-vl{font-size:28px;font-weight:800;line-height:1;margin-bottom:3px;}
+.kv-t .kpi-v2-vl{color:var(--m);}
+.kv-1 .kpi-v2-vl{color:var(--c1);}
+.kv-2 .kpi-v2-vl{color:var(--c2);}
+.kv-3 .kpi-v2-vl{color:var(--c3);}
+.kv-4 .kpi-v2-vl{color:var(--c4);}
+.kv-5 .kpi-v2-vl{color:#7C3AED;}
+.kpi-v2-m{font-size:10px;color:var(--abu);margin-bottom:5px;}
+.kpi-v2-bar{height:3px;background:var(--sf);border-radius:2px;overflow:hidden;}
+.kpi-v2-bar-fill{height:100%;border-radius:2px;transition:width .6s ease;}
+
+/* RISK GRID */
+.risk-grid-v2{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;}
+.rs-v2{padding:11px;border-radius:8px;text-align:center;border:1px solid;}
+.rsv-T{background:#FEE2E2;border-color:#FECACA;color:#991B1B;}
+.rsv-S{background:#FEF3C7;border-color:#FDE68A;color:#92400E;}
+.rsv-R{background:#DCFCE7;border-color:#BBF7D0;color:#166534;}
+.rs-v2-icon{font-size:16px;}
+.rs-v2-lb{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.7px;margin:3px 0;}
+.rs-v2-vl{font-size:17px;font-weight:800;}
+.rs-v2-dk{font-size:10px;margin-top:2px;opacity:.75;}
+
+/* EXEC HEADER */
+.pg-r-header{
+  background:linear-gradient(135deg,#1a0203 0%,#2d0406 55%,#1F2933 100%);
+  border-radius:14px;padding:24px 28px;margin-bottom:18px;position:relative;overflow:hidden;}
+.pg-r-header::before{content:'';position:absolute;top:-40px;right:-40px;width:220px;height:220px;
+  border-radius:50%;background:rgba(237,27,36,.12);pointer-events:none;}
+.pg-r-header::after{content:'';position:absolute;bottom:-60px;left:10%;width:300px;height:120px;
+  background:rgba(237,27,36,.06);border-radius:50%;pointer-events:none;}
+.pg-r-header h1{font-size:22px;font-weight:800;color:#fff;margin-bottom:4px;font-family:var(--fd);letter-spacing:.3px;}
+.pg-r-header p{color:rgba(255,255,255,.5);font-size:12px;margin-bottom:16px;}
+.pg-r-header-meta{display:flex;gap:20px;flex-wrap:wrap;}
+.mi-val{font-size:24px;font-weight:800;color:#fff;line-height:1;}
+.mi-lb{font-size:10px;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:1px;line-height:1.3;}
+.pg-r-header-meta-sep{width:1px;background:rgba(255,255,255,.1);align-self:stretch;}
+
+/* INSIGHT ROW */
+.in-row{display:flex;gap:9px;padding:9px 0;border-bottom:1px solid var(--bd);}
+.in-row:last-child{border-bottom:none;}
+.in-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;margin-top:4px;}
+.in-tx{font-size:12px;color:var(--ink2);line-height:1.6;}
+.in-tx strong{color:var(--ink);}
+
+/* DEP GRID */
+.dep-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.dep-k{background:var(--sf);border-radius:10px;padding:13px;border-left:4px solid;}
+
+/* SITE CARD */
+.sc{background:#fff;border:1px solid var(--bd);border-radius:12px;padding:15px;}
+.sc-nm{font-size:15px;font-weight:800;letter-spacing:.5px;margin-bottom:2px;}
+.sc-ct{color:var(--abu);font-size:11px;margin-bottom:11px;}
+.br-row{display:flex;align-items:center;gap:7px;margin-bottom:5px;}
+.br-lb{font-size:11px;color:var(--abu);min-width:140px;}
+.br-tr{flex:1;height:6px;border-radius:4px;background:var(--bd);overflow:hidden;}
+.br-fi{height:100%;border-radius:4px;}
+.br-an{font-size:11px;font-weight:700;min-width:14px;text-align:right;}
+
+/* HEATMAP */
+.hm-wr{overflow-x:auto;}
+.hm-tb{width:100%;border-collapse:collapse;min-width:400px;}
+.hm-tb th{background:var(--sf);padding:8px 11px;font-size:11px;text-transform:uppercase;
+  letter-spacing:.5px;color:var(--abu);font-weight:700;border-bottom:2px solid var(--bd);text-align:center;}
+.hm-tb th:first-child{text-align:left;}
+.hm-tb td{padding:7px 11px;border-bottom:1px solid var(--bd);font-size:12px;text-align:center;vertical-align:middle;}
+.hm-tb td:first-child{text-align:left;font-weight:500;color:var(--ink2);}
+.hm-tb tr:last-child td{border-bottom:none;}
+.ht{background:#FEE2E2;color:#991B1B;font-weight:700;border-radius:4px;padding:2px 7px;display:inline-block;font-size:11px;}
+.hs{background:#FEF3C7;color:#92400E;font-weight:700;border-radius:4px;padding:2px 7px;display:inline-block;font-size:11px;}
+.hr{background:#DCFCE7;color:#166534;font-weight:700;border-radius:4px;padding:2px 7px;display:inline-block;font-size:11px;}
+
+/* BADGES */
+.br{display:inline-flex;align-items:center;padding:3px 9px;border-radius:20px;font-size:11px;font-weight:600;white-space:nowrap;}
+.b1{background:#DCFCE7;color:#15803D;}
+.b2{background:#DBEAFE;color:#1D4ED8;}
+.b3{background:#FEF3C7;color:#B45309;}
+.b4{background:#F1F5F9;color:#475569;}
+
+/* LEGEND */
+.lg-row{display:flex;flex-wrap:wrap;gap:10px;margin-top:8px;}
+.lg-it{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--ink2);}
+.lg-dot{width:9px;height:9px;border-radius:50%;flex-shrink:0;}
+
+/* MANAGER CARDS */
+.mg-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(255px,1fr));gap:12px;}
+.mc{background:#fff;border:1px solid var(--bd);border-radius:12px;padding:13px;
+  cursor:pointer;transition:all .15s;position:relative;overflow:hidden;}
+.mc:hover{border-color:var(--m);box-shadow:0 4px 16px rgba(237,27,36,.09);transform:translateY(-2px);}
+.mc::before{content:'';position:absolute;top:0;left:0;width:100%;height:3px;}
+.mc-HP::before{background:var(--c1);}
+.mc-MP::before{background:var(--c2);}
+.mc-LP::before{background:var(--c4);}
+.mc-nm{font-weight:700;font-size:13px;margin-bottom:2px;}
+.mc-jb{font-size:11px;color:var(--abu);margin-bottom:8px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.mc-sk{display:grid;grid-template-columns:repeat(3,1fr);gap:5px;margin:7px 0;}
+.msi{text-align:center;}
+.msv{font-size:13px;font-weight:800;}
+.msl{font-size:9px;color:var(--abu);text-transform:uppercase;}
+.mc-ft{display:flex;align-items:center;justify-content:space-between;margin-top:7px;}
+
+/* FIT BAR */
+.fit-bar-wrap{display:flex;align-items:center;gap:6px;margin:4px 0;}
+.fit-bar-bg{flex:1;height:4px;background:var(--bd);border-radius:2px;overflow:hidden;}
+.fit-bar-fill{height:100%;border-radius:2px;}
+
+/* FILTER */
+.fb-row{display:flex;gap:6px;margin-bottom:13px;flex-wrap:wrap;align-items:center;}
+.fb{background:#fff;border:1px solid var(--bd);border-radius:20px;padding:5px 11px;
+  font-size:11px;cursor:pointer;transition:all .15s;color:var(--ink2);}
+.fb:hover{border-color:var(--m);color:var(--m);}
+.fb.on{background:var(--m);border-color:var(--m);color:#fff;}
+.fb.fd.on{background:#0891B2;border-color:#0891B2;}
+.fb.fm.on{background:#16A34A;border-color:#16A34A;}
+.inp-cari{border:1px solid var(--bd);border-radius:8px;padding:5px 11px;
+  font-size:12px;outline:none;width:200px;}
+.inp-cari:focus{border-color:var(--m);}
+
+/* MODAL */
+.mo-ov{position:fixed;inset:0;background:rgba(31,41,51,.75);z-index:1000;
+  display:none;align-items:flex-start;justify-content:center;
+  padding:16px;overflow-y:auto;backdrop-filter:blur(4px);}
+.mo-ov.on{display:flex;}
+.mo-bx{background:#fff;border-radius:14px;width:100%;max-width:820px;margin:auto;overflow:hidden;}
+.mo-hd{background:var(--ink);padding:20px 24px;color:#fff;border-bottom:3px solid var(--m);position:relative;}
+.mo-nm{font-size:17px;font-weight:700;margin-bottom:2px;}
+.mo-jb{color:rgba(255,255,255,.5);font-size:12px;margin-bottom:9px;}
+.mo-mt{display:flex;gap:12px;flex-wrap:wrap;}
+.mo-mt span{color:rgba(255,255,255,.4);font-size:11px;}
+.mo-mt span b{color:rgba(255,255,255,.82);font-weight:600;}
+.mo-cl{position:absolute;top:12px;right:12px;background:rgba(255,255,255,.1);
+  border:none;color:#fff;width:28px;height:28px;border-radius:50%;cursor:pointer;
+  font-size:16px;line-height:28px;text-align:center;}
+.mo-bd{padding:20px 24px;max-height:82vh;overflow-y:auto;}
+.mo-tab-row{display:flex;gap:2px;background:var(--sf);padding:4px;border-radius:10px;width:fit-content;margin-bottom:16px;flex-wrap:wrap;}
+.mo-tab{background:transparent;border:none;color:var(--abu);padding:6px 12px;border-radius:7px;cursor:pointer;font-size:11px;font-weight:500;transition:all .15s;white-space:nowrap;}
+.mo-tab.on{background:#fff;color:var(--ink);box-shadow:0 1px 6px rgba(0,0,0,.1);font-weight:700;}
+.mo-sec{display:none;animation:fi .2s ease;}
+.mo-sec.on{display:block;}
+.ms-t{font-size:10px;text-transform:uppercase;letter-spacing:1.5px;color:var(--abu);
+  font-weight:700;border-bottom:1px solid var(--bd);padding-bottom:4px;margin-bottom:9px;}
+.msec{margin-bottom:16px;}
+.s2g{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;}
+.s3g{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;}
+.s4g{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;}
+.si{text-align:center;padding:9px;background:var(--sf);border-radius:8px;}
+.siv{font-size:16px;font-weight:800;}
+.sil{font-size:10px;color:var(--abu);text-transform:uppercase;margin-top:2px;}
+
+/* SCORE BARS IN MODAL */
+.bar-row{display:flex;align-items:center;gap:8px;margin-bottom:5px;}
+.bar-lb{font-size:11px;color:var(--ink2);min-width:185px;}
+.bar-tr{flex:1;height:5px;border-radius:3px;background:var(--bd);overflow:hidden;}
+.bar-fi{height:100%;border-radius:3px;}
+.bar-n{font-size:11px;font-weight:600;min-width:16px;color:var(--ink2);}
+
+/* STEP BOXES */
+.step-row{display:flex;gap:10px;margin-bottom:10px;align-items:flex-start;}
+.step-num{min-width:26px;height:26px;border-radius:50%;background:#ED1B24;color:#fff;
+  display:flex;align-items:center;justify-content:center;font-weight:700;font-size:11px;flex-shrink:0;margin-top:2px;}
+.step-body{flex:1;background:var(--sf);border:1px solid var(--bd);border-radius:8px;padding:10px 12px;}
+.step-title{font-size:12px;font-weight:700;color:var(--ink);margin-bottom:3px;}
+.step-text{font-size:11px;color:var(--abu);line-height:1.6;}
+
+/* TABLE */
+.tbl{width:100%;border-collapse:collapse;font-size:12px;}
+.tbl th{background:var(--sf);padding:8px 11px;text-align:left;font-size:11px;
+  text-transform:uppercase;letter-spacing:.5px;color:var(--abu);font-weight:700;border-bottom:2px solid var(--bd);}
+.tbl td{padding:8px 11px;border-bottom:1px solid var(--bd);vertical-align:top;}
+.tbl tr:last-child td{border-bottom:none;}
+
+/* DISC BADGE */
+.bd-D{background:#FEE2E2;color:#991B1B;font-size:11px;font-weight:700;padding:2px 8px;border-radius:4px;}
+.bd-I{background:#FEF3C7;color:#92400E;font-size:11px;font-weight:700;padding:2px 8px;border-radius:4px;}
+.bd-S{background:#DCFCE7;color:#166534;font-size:11px;font-weight:700;padding:2px 8px;border-radius:4px;}
+.bd-C{background:#DBEAFE;color:#1E3A8A;font-size:11px;font-weight:700;padding:2px 8px;border-radius:4px;}
+
+/* CW */
+.cw{position:relative;}
+
+@media(max-width:900px){
+  .g2,.g3,.g4,.kpi-row-v2,.dep-grid{grid-template-columns:1fr;}
+  .pg{padding:13px;}
+  .topbar{padding:0 13px;}
+  .tb-nav{display:none;}
+  .kpi-row-v2{grid-template-columns:repeat(3,1fr);}
+}
+@media print{.topbar,.fb-row{display:none!important;}.pg{display:block!important;break-after:page;}}
+</style>
+</head>
+<body>
+
+<!-- TOPBAR -->
+<div class="topbar">
+  <div class="tb-l">
+    <div class="tb-logo">HC</div>
+    <div>
+      <div class="tb-title">Mapping SPV &amp; Foreman — Prod/MTC NSI</div>
+      <div class="tb-sub">Assessment Batch 2026 · 19 Peserta · HC Calibration Dashboard</div>
+    </div>
+  </div>
+  <div class="tb-nav">
+    <button class="nb on" onclick="showPg('pg-r',this)">📊 Overview</button>
+    <button class="nb" onclick="showPg('pg-i',this)">👤 Profil Individu</button>
+    <button class="nb" onclick="showPg('pg-m',this)">🗺 Matriks</button>
+    <button class="nb" onclick="showPg('pg-a',this)">🎯 Rencana Aksi</button>
+  </div>
+  <span class="badge-r">CONFIDENTIAL</span>
+</div>
+
+<!-- PAGE 1: OVERVIEW -->
+<div class="pg on" id="pg-r">
+  <div class="pg-r-header">
+    <h1>Mapping SPV &amp; Foreman — Prod/MTC NSI</h1>
+    <p>Assessment Batch 2026 · Plant NSI · Confidential — HC Internal Use Only</p>
+    <div class="pg-r-header-meta" id="hdr-meta"></div>
+  </div>
+  <div class="kpi-row-v2" id="kpi-row"></div>
+  <div class="g2">
+    <div class="pn">
+      <div class="pn-title-bar"><div class="pn-title-line"></div>
+        <div class="pn-title-content"><div class="pn-t">Distribusi Rekomendasi</div><div class="pn-s">Klasifikasi kesiapan — 19 peserta</div></div>
+      </div>
+      <div class="cw" style="height:195px"><canvas id="c-reko"></canvas></div>
+    </div>
+    <div class="pn">
+      <div class="pn-title-bar"><div class="pn-title-line" style="background:#DC2626"></div>
+        <div class="pn-title-content"><div class="pn-t">Indikator Risiko Organisasi</div><div class="pn-s">Diturunkan dari pola penilaian — perlu validasi</div></div>
+      </div>
+      <div class="risk-grid-v2" id="risk-grid"></div>
+    </div>
+  </div>
+  <div class="g2">
+    <div class="pn">
+      <div class="pn-title-bar"><div class="pn-title-line" style="background:#16A34A"></div>
+        <div class="pn-title-content"><div class="pn-t">Distribusi Fit Score</div><div class="pn-s">Per individu — diurutkan dari tertinggi</div></div>
+      </div>
+      <div class="cw" style="height:195px"><canvas id="c-fit"></canvas></div>
+    </div>
+    <div class="pn">
+      <div class="pn-title-bar"><div class="pn-title-line" style="background:#0284C7"></div>
+        <div class="pn-title-content"><div class="pn-t">Profil DISC Organisasi</div><div class="pn-s">Kecenderungan perilaku — bukan prediktor utama kesiapan</div></div>
+      </div>
+      <div class="cw" style="height:195px"><canvas id="c-disc"></canvas></div>
+    </div>
+  </div>
+  <div class="pn">
+    <div class="pn-title-bar"><div class="pn-title-line" style="background:#7C3AED"></div>
+      <div class="pn-title-content"><div class="pn-t">Risiko Ketergantungan per Departemen</div><div class="pn-s">Analisis konsentrasi kepemimpinan dan kelemahan pipeline per fungsi</div></div>
+    </div>
+    <div class="dep-grid" id="dep-grid"></div>
+  </div>
+  <div class="pn">
+    <div class="pn-title-bar"><div class="pn-title-line" style="background:#D97706"></div>
+      <div class="pn-title-content"><div class="pn-t">Wawasan Eksekutif</div><div class="pn-s">Digenerate dari pola penilaian — untuk kalibrasi panel dengan departemen dan user</div></div>
+    </div>
+    <div id="wawasan"></div>
+  </div>
+</div>
+
+<!-- PAGE 2: INDIVIDU -->
+<div class="pg" id="pg-i">
+  <div class="ph"><h1>Profil Individual</h1>
+    <p>Klik kartu untuk membuka profil lengkap — termasuk Growth, Guardianship, Guidance &amp; Panduan 1-on-1</p>
+  </div>
+  <div class="fb-row">
+    <button class="fb on" onclick="flt('all',this)">Semua (19)</button>
+    <button class="fb" onclick="flt('MP',this)">Medium Potential</button>
+    <button class="fb" onclick="flt('LP',this)">Perlu Pengembangan</button>
+    <button class="fb fd" onclick="flt('PRODUCTION',this)">⚙ Production</button>
+    <button class="fb fm" onclick="flt('MAINTENANCE',this)">🔧 Maintenance</button>
+    <button class="fb" onclick="flt('SUPERVISOR',this)">SPV</button>
+    <button class="fb" onclick="flt('FOREMAN',this)">Foreman</button>
+    <input type="text" class="inp-cari" id="inp-s" placeholder="Cari nama / jabatan..." oninput="doSearch()">
+  </div>
+  <div class="mg-grid" id="mg-grid"></div>
+</div>
+
+<!-- PAGE 3: MATRIKS -->
+<div class="pg" id="pg-m">
+  <div class="ph"><h1>Matriks Talenta</h1>
+    <p>Pemetaan kepemimpinan multi-dimensi — semua posisi diturunkan dari indikator penilaian</p>
+    <div class="ph-sub">⚠ Matriks ini adalah masukan pengambilan keputusan — bukan klasifikasi final. Kalibrasi dengan rekam jejak kinerja dan masukan atasan langsung wajib dilakukan.</div>
+  </div>
+  <div class="g2">
+    <div class="pn"><div class="pn-h"><div class="pn-t">Fit Score vs IQ General</div></div>
+      <div class="cw" style="height:280px"><canvas id="c-pp"></canvas></div>
+      <div class="lg-row" id="pp-lg"></div>
+    </div>
+    <div class="pn"><div class="pn-h"><div><div class="pn-t">Radar — Kognitif · Kinerja · Kepemimpinan</div><div class="pn-s">Perbandingan rata-rata per departemen</div></div></div>
+      <div style="display:flex;justify-content:center;padding:6px 0;">
+        <div style="position:relative;width:280px;height:255px;flex-shrink:0;"><canvas id="c-radar"></canvas></div>
+      </div>
+      <div class="lg-row" id="radar-lg"></div>
+    </div>
+  </div>
+  <div class="pn"><div class="pn-h"><div class="pn-t">Heatmap Kompetensi per Departemen</div><div class="pn-s">8 dimensi — diturunkan dari penilaian assessment</div></div>
+    <div class="hm-wr">
+      <table class="hm-tb"><thead><tr>
+        <th style="min-width:180px">Dimensi</th>
+        <th>Production</th><th>Maintenance</th>
+      </tr></thead>
+      <tbody id="hm-body"></tbody></table>
+    </div>
+    <div style="margin-top:7px;font-size:10px;color:var(--abu);">🟢 ≥3.0 Cukup Baik &nbsp;|&nbsp; 🟡 2.0–2.9 Perlu Perhatian &nbsp;|&nbsp; 🔴 &lt;2.0 Gap Signifikan &nbsp;|&nbsp; Semua nilai diturunkan dari indikator penilaian</div>
+  </div>
+  <div class="pn"><div class="pn-h"><div><div class="pn-t">Distribusi Profil Kerja</div><div class="pn-s">Teamwork vs Individual · Strategic vs Eksekusi — diturunkan dari DISC dan skor kepemimpinan</div></div></div>
+    <div class="g2" id="profil-grid"></div>
+  </div>
+</div>
+
+<!-- PAGE 4: RENCANA AKSI -->
+<div class="pg" id="pg-a">
+  <div class="ph"><h1>Rencana Aksi</h1>
+    <p>Tindakan pengembangan dan penguatan — perlu kalibrasi dengan departemen dan user sebelum implementasi</p>
+  </div>
+  <div class="al al-r"><div class="al-ik">⚠</div><div class="al-tx">
+    <strong>Prinsip Tata Kelola</strong>
+    Hasil assessment adalah masukan pengambilan keputusan — bukan penentu final. Setiap keputusan (penugasan, pengembangan, perluasan tanggung jawab) harus dikalibrasi dengan: riwayat kinerja aktual, masukan atasan langsung, konteks bisnis, dan review departemen serta user.
+  </div></div>
+  <div class="g2">
+    <div class="pn"><div class="pn-h"><div class="pn-t">Medium Potential — Kandidat Prioritas</div><div class="pn-s">Fit Score ≥70 — perlu pengembangan terarah</div></div>
+      <div id="tbl-mp"></div>
+    </div>
+    <div class="pn"><div class="pn-h"><div class="pn-t">Top Gap — Area Pengembangan Organisasi</div><div class="pn-s">Pola dominan dari 19 peserta</div></div>
+      <div id="top-gap"></div>
+    </div>
+  </div>
+  <div class="pn"><div class="pn-h"><div class="pn-t">Priority Development Action per Individu</div></div>
+    <table class="tbl" id="tbl-ak">
+      <thead><tr><th>Nama</th><th>Jabatan/Dept</th><th>Fit</th><th>Status</th><th>Focus Area</th><th>Langkah Utama</th></tr></thead>
+      <tbody id="tbl-ak-body"></tbody>
+    </table>
+  </div>
+  <div class="pn">
+    <div class="pn-t" style="margin-bottom:10px">Pernyataan Tata Kelola dan Disclaimer</div>
+    <div style="font-size:12px;color:var(--ink2);line-height:1.8;">
+      <p>Instrumen penilaian (DISC, IQ WPT, IQ CFIT, Skor Kompetensi) adalah <strong>indikator kecenderungan perilaku</strong> — bukan diagnosis klinis atau penentuan karakter permanen.</p><br>
+      <p><strong>Dashboard ini tidak boleh menjadi satu-satunya dasar untuk:</strong> penugasan ulang, perluasan tanggung jawab, atau keputusan placement apapun.</p><br>
+      <p><strong>Masukan kalibrasi yang wajib:</strong> Riwayat kinerja aktual · Penilaian atasan langsung · Konteks bisnis terkini · Validasi wawancara mendalam · Review departemen dan user terkait</p>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL -->
+<div class="mo-ov" id="mo-ov" onclick="closeMo(event)">
+  <div class="mo-bx" id="mo-bx"></div>
+</div>
+
+<script>
+const MGR = [{"nik": "22000775", "name": "BERNARD TAMPUBOLON", "jabatan": "SUPERVISOR - CSD", "departement": "PRODUCTION", "tipe": "PERMANENT", "pendidikan": "D4", "masa_kerja": 3.4, "attendance": 0.993333, "iq_general": 95, "iq_analytical": 88, "kat_wpt": "Average", "kat_anal": "Low Average", "disc_group": "D", "fit_score": 60, "rekomendasi": "LOW POTENTIAL", "berpikir": 3, "masalah": 2, "kreatif": 1, "prestasi": 3, "tangguh": 3, "kepemilikan": 3, "memimpin": 3, "emosi": 3, "perencanaan": 3, "adaptasi": 3, "jumlah_memenuhi": 4, "jumlah_gap1": 4, "jumlah_gap_gt1": 2, "highlight": "Peningkatan kemandirian dalam mengambil keputusan dan kemampuan problem solving saat menghadapi masalah operasional.", "dampak": "Pengambilan keputusan operasional berpotensi lambat saat terjadi kendala produksi sehingga penyelesaian masalah di lapangan kurang optimal dan ketergantungan pada arahan atasan masih cukup tinggi.", "selfdev": "1. Meningkatkan kemampuan problem solving & analisis akar masalah.\n2. Melatih pengambilan keputusan mandiri dalam operasional.\n3. Mengembangkan konsistensi leadership & kontrol kerja tim.", "rekom_atasan": "1. Berikan coaching terkait pengambilan keputusan secara bertahap.\n2. Berikan target dan KPI yang jelas serta terukur.\n3. Monitoring rutin terkait follow up problem lapangan.", "deskKognitif": "CUKUP TAKTIKAL", "deskKinerja": "OPERASIONAL CUKUP", "deskLeadership": "CUKUP BERPOTENSI MEMIMPIN"}, {"nik": "24000691", "name": "M. RIZAL FAHMI", "jabatan": "SUPERVISOR - ASEPTIC", "departement": "PRODUCTION", "tipe": "PERMANENT", "pendidikan": "S1", "masa_kerja": 1.7, "attendance": 0.993333, "iq_general": 113, "iq_analytical": 78, "kat_wpt": "High Average", "kat_anal": "Borderline", "disc_group": "D", "fit_score": 65, "rekomendasi": "LOW POTENTIAL", "berpikir": 4, "masalah": 1, "kreatif": 2, "prestasi": 3, "tangguh": 3, "kepemilikan": 3, "memimpin": 3, "emosi": 3, "perencanaan": 3, "adaptasi": 3, "jumlah_memenuhi": 4, "jumlah_gap1": 5, "jumlah_gap_gt1": 1, "highlight": "Agar lebih seimbang antara orientasi target dengan kontrol detail proses kerja dan koordinasi tim.", "dampak": "Fokus tinggi pada target berpotensi menyebabkan detail proses dan koordinasi tim kurang terkontrol sehingga risiko miss komunikasi dan ketidakkonsistenan kualitas kerja meningkat.", "selfdev": "1. Meningkatkan kemampuan analitis & kontrol proses.\n2. Mengembangkan fleksibilitas kepemimpinan.\n3. Melatih keseimbangan antara target dan kualitas proses.", "rekom_atasan": "1. Berikan evaluasi detail terhadap cara kerja.\n2. Dampingi dalam pengambilan keputusan strategis.\n3. Berikan exposure improvement project lintas area.", "deskKognitif": "CUKUP TAKTIKAL", "deskKinerja": "OPERASIONAL CUKUP", "deskLeadership": "CUKUP BERPOTENSI MEMIMPIN"}, {"nik": "10240122", "name": "YANA NUGRAHA P", "jabatan": "PRODUCTION FOREMAN PACKAGING - CSD", "departement": "PRODUCTION", "tipe": "CONTRACT", "pendidikan": "SMK", "masa_kerja": 0, "attendance": 1.0, "iq_general": 75, "iq_analytical": 70, "kat_wpt": "Borderline", "kat_anal": "Borderline", "disc_group": "IDS", "fit_score": 55, "rekomendasi": "LOW POTENTIAL", "berpikir": 2, "masalah": 1, "kreatif": 1, "prestasi": 3, "tangguh": 3, "kepemilikan": 3, "memimpin": 3, "emosi": 3, "perencanaan": 3, "adaptasi": 3, "jumlah_memenuhi": 4, "jumlah_gap1": 3, "jumlah_gap_gt1": 3, "highlight": "Penguatan kemampuan analisis dasar serta keterlibatan dalam pembinaan dan pengelolaan tim.", "dampak": "Kemampuan analisis yang belum kuat dapat menyebabkan kesulitan membaca prioritas masalah operasional serta pembinaan tim belum berjalan optimal sehingga efektivitas kerja tim kurang stabil.", "selfdev": "1. Meningkatkan pemahaman teknis & problem solving dasar.\n2. Mengembangkan keterlibatan dalam pembinaan tim.\n3. Meningkatkan kemampuan koordinasi operasional.", "rekom_atasan": "1. Berikan SOP kerja yang jelas & terstruktur.\n2. Lakukan coaching rutin terkait leadership dasar.\n3. Berikan supervisi ketat dalam pengelolaan pekerjaan.", "deskKognitif": "BUKAN TAKTIKAL", "deskKinerja": "OPERASIONAL CUKUP", "deskLeadership": "CUKUP BERPOTENSI MEMIMPIN"}, {"nik": "10220009", "name": "ILHAM RUSYANDI", "jabatan": "PRODUCTION FOREMAN PACKAGING - CSD", "departement": "PRODUCTION", "tipe": "PERMANENT", "pendidikan": "SMK", "masa_kerja": 0, "attendance": 1.0, "iq_general": 100, "iq_analytical": 48, "kat_wpt": "Average", "kat_anal": "Extremely Low", "disc_group": "DS", "fit_score": 45, "rekomendasi": "LOW POTENTIAL", "berpikir": 3, "masalah": 1, "kreatif": 1, "prestasi": 3, "tangguh": 2, "kepemilikan": 3, "memimpin": 3, "emosi": 3, "perencanaan": 3, "adaptasi": 2, "jumlah_memenuhi": 3, "jumlah_gap1": 3, "jumlah_gap_gt1": 4, "highlight": "Adaptasi ritme kerja cepat serta peningkatan fleksibilitas dan ketegasan kerja.", "dampak": "Ritme kerja yang belum stabil dan fleksibilitas yang rendah dapat memperlambat adaptasi terhadap perubahan target maupun kondisi produksi sehingga performa operasional kurang konsisten.", "selfdev": "1. Meningkatkan adaptasi terhadap ritme kerja cepat.\n2. Mengembangkan keberanian mengambil keputusan.\n3. Melatih fleksibilitas terhadap perubahan kerja.", "rekom_atasan": "1. Berikan target kerja bertahap dengan deadline jelas.\n2. Coaching terkait ketegasan & leadership praktis.\n3. Monitoring kedisiplinan dan speed kerja.", "deskKognitif": "CUKUP TAKTIKAL", "deskKinerja": "OPERASIONAL KURANG BAGUS", "deskLeadership": "CUKUP BERPOTENSI MEMIMPIN"}, {"nik": "24000770", "name": "M. LUTHFI ABDURRAHIM", "jabatan": "PRODUCTION FOREMAN PROCESSING - ASEPTIC", "departement": "PRODUCTION", "tipe": "PERMANENT", "pendidikan": "S1", "masa_kerja": 0, "attendance": 1.0, "iq_general": 102, "iq_analytical": 91, "kat_wpt": "Average", "kat_anal": "Extremely Low", "disc_group": "0", "fit_score": 5, "rekomendasi": "LOW POTENTIAL", "berpikir": 3, "masalah": 2, "kreatif": 2, "prestasi": 3, "tangguh": 3, "kepemilikan": 3, "memimpin": 3, "emosi": 3, "perencanaan": 3, "adaptasi": 3, "jumlah_memenuhi": 0, "jumlah_gap1": 1, "jumlah_gap_gt1": 9, "highlight": "Pengembangan inisiatif dan kemandirian kerja agar tidak terlalu bergantung pada arahan.", "dampak": "Inisiatif kerja yang masih rendah menyebabkan pekerjaan lebih sering menunggu arahan sehingga respons terhadap masalah operasional menjadi kurang cepat dan progres kerja kurang proaktif.", "selfdev": "1. Mengembangkan kemandirian kerja & inisiatif.\n2. Meningkatkan kemampuan problem solving.\n3. Melatih fleksibilitas dalam menghadapi perubahan.", "rekom_atasan": "1. Berikan tantangan pekerjaan bertahap.\n2. Libatkan dalam improvement kecil area kerja.\n3. Evaluasi rutin terhadap konsistensi hasil kerja.", "deskKognitif": "CUKUP TAKTIKAL", "deskKinerja": "OPERASIONAL CUKUP", "deskLeadership": "CUKUP BERPOTENSI MEMIMPIN"}, {"nik": "25000339", "name": "ALIF ALFARIZI", "jabatan": "PRODUCTION FOREMAN PROCESSING - ASEPTIC", "departement": "PRODUCTION", "tipe": "CONTRACT", "pendidikan": "S1", "masa_kerja": 0, "attendance": 0.993333, "iq_general": 111, "iq_analytical": 52, "kat_wpt": "High Average", "kat_anal": "Extremely Low", "disc_group": "ISD", "fit_score": 40, "rekomendasi": "LOW POTENTIAL", "berpikir": 4, "masalah": 1, "kreatif": 1, "prestasi": 3, "tangguh": 3, "kepemilikan": 2, "memimpin": 3, "emosi": 3, "perencanaan": 2, "adaptasi": 2, "jumlah_memenuhi": 4, "jumlah_gap1": 0, "jumlah_gap_gt1": 6, "highlight": "Cara komunikasi dan kontrol emosi dalam memimpin agar tidak terlalu dominan dan keras.", "dampak": "Gaya komunikasi yang cenderung keras berpotensi menurunkan kenyamanan kerja tim sehingga koordinasi, keterbukaan bawahan, dan stabilitas hubungan kerja dapat terganggu.", "selfdev": "1. Mengembangkan kemampuan prioritas kerja.\n2. Meningkatkan empati & komunikasi leadership.\n3. Melatih kontrol emosi saat memimpin tim.", "rekom_atasan": "1. Berikan pengarahan target & prioritas harian.\n2. Coaching interpersonal leadership.\n3. Monitoring gaya komunikasi kepada bawahan.", "deskKognitif": "CUKUP TAKTIKAL", "deskKinerja": "OPERASIONAL CUKUP", "deskLeadership": "CUKUP BERPOTENSI MEMIMPIN"}, {"nik": "22000753", "name": "AGUS ANDRIDIN", "jabatan": "PRODUCTION FOREMAN - SIPA", "departement": "PRODUCTION", "tipe": "PERMANENT", "pendidikan": "S1", "masa_kerja": 0, "attendance": 1.0, "iq_general": 80, "iq_analytical": 65, "kat_wpt": "Low Average", "kat_anal": "Extremely Low", "disc_group": "CI", "fit_score": 55, "rekomendasi": "LOW POTENTIAL", "berpikir": 2, "masalah": 1, "kreatif": 1, "prestasi": 3, "tangguh": 3, "kepemilikan": 3, "memimpin": 3, "emosi": 3, "perencanaan": 3, "adaptasi": 3, "jumlah_memenuhi": 4, "jumlah_gap1": 3, "jumlah_gap_gt1": 3, "highlight": "Peningkatan ownership kerja serta kemampuan berpikir analitis dalam pekerjaan operasional.", "dampak": "Ownership dan kemampuan analitis yang belum optimal dapat menyebabkan penyelesaian masalah operasional kurang mendalam serta pengawasan pekerjaan menjadi kurang maksimal.", "selfdev": "1. Meningkatkan kemampuan analisis dasar.\n2. Mengembangkan ownership terhadap organisasi.\n3. Melatih keberanian mengambil inisiatif.", "rekom_atasan": "1. Berikan arahan kerja yang jelas dan rutin.\n2. Dorong keterlibatan dalam aktivitas improvement.\n3. Evaluasi kontribusi & keterlibatan kerja tim.", "deskKognitif": "BUKAN TAKTIKAL", "deskKinerja": "OPERASIONAL CUKUP", "deskLeadership": "CUKUP BERPOTENSI MEMIMPIN"}, {"nik": "23010252", "name": "RIDHO SOBIRIN", "jabatan": "SUPERVISOR MAINTENANCE CSD", "departement": "MAINTENANCE", "tipe": "PERMANENT", "pendidikan": "D4", "masa_kerja": 2.11, "attendance": 1.0, "iq_general": 108, "iq_analytical": 78, "kat_wpt": "Average", "kat_anal": "Borderline", "disc_group": "I", "fit_score": 70, "rekomendasi": "MEDIUM POTENTIAL", "berpikir": 3, "masalah": 2, "kreatif": 2, "prestasi": 3, "tangguh": 3, "kepemilikan": 3, "memimpin": 3, "emosi": 3, "perencanaan": 3, "adaptasi": 3, "jumlah_memenuhi": 5, "jumlah_gap1": 4, "jumlah_gap_gt1": 1, "highlight": "Peningkatan inisiatif, ketegasan leadership, dan kontrol detail pekerjaan tim.", "dampak": "Inisiatif dan ketegasan leadership yang belum konsisten dapat menyebabkan kontrol pekerjaan tim kurang detail sehingga monitoring pekerjaan dan ketepatan eksekusi belum optimal.", "selfdev": "1. Meningkatkan inisiatif dan tanggung jawab mandiri.\n2. Mengembangkan ketegasan leadership.\n3. Meningkatkan kemampuan monitoring detail pekerjaan.", "rekom_atasan": "1. Berikan target individu yang spesifik.\n2. Coaching terkait kontrol pekerjaan tim.\n3. Dampingi dalam pengambilan keputusan lapangan.", "deskKognitif": "CUKUP TAKTIKAL", "deskKinerja": "OPERASIONAL CUKUP", "deskLeadership": "CUKUP BERPOTENSI MEMIMPIN"}, {"nik": "24000783", "name": "SENDY PERDANA RUHYAT", "jabatan": "SUPERVISOR MAINTENANCE CSD", "departement": "MAINTENANCE", "tipe": "PERMANENT", "pendidikan": "D4", "masa_kerja": 1.6, "attendance": 1.0, "iq_general": 97, "iq_analytical": 65, "kat_wpt": "Average", "kat_anal": "Extremely Low", "disc_group": "S", "fit_score": 65, "rekomendasi": "LOW POTENTIAL", "berpikir": 3, "masalah": 2, "kreatif": 1, "prestasi": 3, "tangguh": 3, "kepemilikan": 3, "memimpin": 3, "emosi": 3, "perencanaan": 3, "adaptasi": 3, "jumlah_memenuhi": 5, "jumlah_gap1": 3, "jumlah_gap_gt1": 2, "highlight": "Peningkatan motivasi kerja dan fleksibilitas dalam bekerja sama maupun menghadapi perubahan.", "dampak": "Motivasi dan fleksibilitas kerja yang belum stabil dapat memengaruhi kecepatan adaptasi terhadap perubahan pekerjaan serta menurunkan efektivitas kerja sama tim.", "selfdev": "1. Meningkatkan motivasi pencapaian kerja.\n2. Mengembangkan fleksibilitas dalam bekerja.\n3. Meningkatkan konsistensi performa operasional.", "rekom_atasan": "1. Berikan challenge target bertahap.\n2. Monitoring konsistensi penyelesaian pekerjaan.\n3. Coaching terkait adaptability & teamwork.", "deskKognitif": "CUKUP TAKTIKAL", "deskKinerja": "OPERASIONAL CUKUP", "deskLeadership": "CUKUP BERPOTENSI MEMIMPIN"}, {"nik": "17000588", "name": "MULYANA", "jabatan": "SUPERVISOR MAINTENANCE UTILITY", "departement": "MAINTENANCE", "tipe": "PERMANENT", "pendidikan": "S1", "masa_kerja": 8.7, "attendance": 1.0, "iq_general": 114, "iq_analytical": 67, "kat_wpt": "High Average", "kat_anal": "Extremely Low", "disc_group": "IDS", "fit_score": 65, "rekomendasi": "LOW POTENTIAL", "berpikir": 4, "masalah": 1, "kreatif": 1, "prestasi": 3, "tangguh": 3, "kepemilikan": 3, "memimpin": 3, "emosi": 3, "perencanaan": 3, "adaptasi": 3, "jumlah_memenuhi": 5, "jumlah_gap1": 3, "jumlah_gap_gt1": 2, "highlight": "Penguatan karakter leadership dan peningkatan tanggung jawab kerja secara mandiri.", "dampak": "Leadership dan tanggung jawab mandiri yang belum kuat dapat menyebabkan dorongan kerja tim kurang maksimal serta ketergantungan terhadap arahan atasan masih cukup tinggi.", "selfdev": "1. Meningkatkan kemandirian kerja.\n2. Mengembangkan karakter leadership.\n3. Melatih ownership terhadap hasil kerja tim.", "rekom_atasan": "1. Berikan pendelegasian tugas bertahap.\n2. Monitoring follow up pekerjaan harian.\n3. Berikan coaching leadership dasar.", "deskKognitif": "CUKUP TAKTIKAL", "deskKinerja": "OPERASIONAL CUKUP", "deskLeadership": "CUKUP BERPOTENSI MEMIMPIN"}, {"nik": "23010028", "name": "YANA SURYANA", "jabatan": "FOREMAN MAINTENANCE CSD", "departement": "MAINTENANCE", "tipe": "PERMANENT", "pendidikan": "SMK", "masa_kerja": 3.3, "attendance": 0.993333, "iq_general": 97, "iq_analytical": 72, "kat_wpt": "Average", "kat_anal": "Borderline", "disc_group": "I", "fit_score": 75, "rekomendasi": "MEDIUM POTENTIAL", "berpikir": 3, "masalah": 2, "kreatif": 2, "prestasi": 3, "tangguh": 3, "kepemilikan": 3, "memimpin": 3, "emosi": 3, "perencanaan": 3, "adaptasi": 4, "jumlah_memenuhi": 6, "jumlah_gap1": 3, "jumlah_gap_gt1": 1, "highlight": "Peningkatan motivasi pencapaian kerja dan ketegasan dalam mengarahkan tim.", "dampak": "Ketegasan dalam mengarahkan tim yang belum konsisten dapat menyebabkan kontrol terhadap bawahan kurang optimal sehingga pencapaian target kerja berpotensi tidak stabil.", "selfdev": "1. Meningkatkan motivasi dan target achievement.\n2. Mengembangkan ketelitian & detail kontrol kerja.\n3. Melatih ketegasan dalam memimpin tim.", "rekom_atasan": "1. Berikan KPI kerja yang terukur.\n2. Coaching terkait drive & leadership presence.\n3. Evaluasi konsistensi performa secara berkala.", "deskKognitif": "CUKUP TAKTIKAL", "deskKinerja": "OPERASIONAL CUKUP", "deskLeadership": "CUKUP BERPOTENSI MEMIMPIN"}, {"nik": "22000754", "name": "ATEP TEDY", "jabatan": "FOREMAN MAINTENANCE CSD", "departement": "MAINTENANCE", "tipe": "PERMANENT", "pendidikan": "SMK", "masa_kerja": 3.4, "attendance": 1.0, "iq_general": 83, "iq_analytical": 72, "kat_wpt": "Low Average", "kat_anal": "Borderline", "disc_group": "SI", "fit_score": 70, "rekomendasi": "MEDIUM POTENTIAL", "berpikir": 2, "masalah": 2, "kreatif": 2, "prestasi": 3, "tangguh": 3, "kepemilikan": 3, "memimpin": 4, "emosi": 3, "perencanaan": 4, "adaptasi": 3, "jumlah_memenuhi": 5, "jumlah_gap1": 4, "jumlah_gap_gt1": 1, "highlight": "Peningkatan kemampuan problem solving dan kesiapan menghadapi perubahan kerja yang dinamis.", "dampak": "Kemampuan problem solving dan adaptasi perubahan yang belum optimal dapat memperlambat penyelesaian kendala kerja sehingga efektivitas operasional kurang maksimal pada situasi dinamis.", "selfdev": "1. Meningkatkan kemampuan analisis & problem solving.\n2. Mengembangkan fleksibilitas menghadapi perubahan.\n3. Meningkatkan kecepatan & energi kerja.", "rekom_atasan": "1. Berikan simulasi problem solving lapangan.\n2. Libatkan dalam improvement project.\n3. Monitoring responsiveness terhadap perubahan kerja.", "deskKognitif": "BUKAN TAKTIKAL", "deskKinerja": "OPERASIONAL CUKUP", "deskLeadership": "BERPOTENSI MEMIMPIN"}, {"nik": "24001000", "name": "SOLEHUDIN", "jabatan": "FOREMAN MAINTENANCE CSD", "departement": "MAINTENANCE", "tipe": "CONTRACT", "pendidikan": "SMA", "masa_kerja": 3.4, "attendance": 1.0, "iq_general": 88, "iq_analytical": 57, "kat_wpt": "Low Average", "kat_anal": "Extremely Low", "disc_group": "I", "fit_score": 40, "rekomendasi": "LOW POTENTIAL", "berpikir": 1, "masalah": 1, "kreatif": 1, "prestasi": 2, "tangguh": 2, "kepemilikan": 3, "memimpin": 3, "emosi": 2, "perencanaan": 3, "adaptasi": 3, "jumlah_memenuhi": 1, "jumlah_gap1": 6, "jumlah_gap_gt1": 3, "highlight": "Konsistensi ritme kerja, pengambilan keputusan, dan kesiapan menghadapi tekanan kerja.", "dampak": "Konsistensi kerja dan kesiapan menghadapi tekanan yang masih rendah berpotensi menyebabkan performa kerja mudah menurun saat beban kerja meningkat atau situasi kerja berubah cepat.", "selfdev": "1. Meningkatkan ritme dan konsistensi kerja.\n2. Mengembangkan kemampuan pengambilan keputusan.\n3. Melatih kesiapan menghadapi tekanan kerja.", "rekom_atasan": "1. Berikan target kerja dengan timeline jelas.\n2. Coaching terkait decision making.\n3. Pendampingan saat menghadapi masalah operasional.", "deskKognitif": "BUKAN TAKTIKAL", "deskKinerja": "OPERASIONAL KURANG BAGUS", "deskLeadership": "CUKUP BERPOTENSI MEMIMPIN"}, {"nik": "24001029", "name": "GHURUH SYAFIQ FERDIANSYAH", "jabatan": "FOREMAN MAINTENANCE CSD", "departement": "MAINTENANCE", "tipe": "PERMANENT", "pendidikan": "D3", "masa_kerja": 1.5, "attendance": 1.0, "iq_general": 102, "iq_analytical": 88, "kat_wpt": "Average", "kat_anal": "Low Average", "disc_group": "I", "fit_score": 50, "rekomendasi": "LOW POTENTIAL", "berpikir": 3, "masalah": 2, "kreatif": 2, "prestasi": 3, "tangguh": 3, "kepemilikan": 2, "memimpin": 2, "emosi": 3, "perencanaan": 2, "adaptasi": 2, "jumlah_memenuhi": 4, "jumlah_gap1": 2, "jumlah_gap_gt1": 4, "highlight": "Kedisiplinan, konsistensi kerja, dan pendekatan interpersonal saat memimpin tim.", "dampak": "Pendekatan interpersonal dan konsistensi kerja yang belum optimal dapat memengaruhi kedisiplinan tim serta mengurangi efektivitas pengarahan dalam pekerjaan operasional.", "selfdev": "1. Meningkatkan disiplin & konsistensi kerja.\n2. Mengembangkan interpersonal leadership.\n3. Meningkatkan perhatian terhadap detail pekerjaan.", "rekom_atasan": "1. Monitoring kedisiplinan dan follow up kerja.\n2. Coaching komunikasi & pendekatan ke tim.\n3. Evaluasi kualitas hasil kerja secara rutin.", "deskKognitif": "CUKUP TAKTIKAL", "deskKinerja": "OPERASIONAL CUKUP", "deskLeadership": "KURANG BERPOTENSI PEMIMPIN"}, {"nik": "24001041", "name": "ANGGI YUSTRANDI", "jabatan": "FOREMAN MAINTENANCE CSD", "departement": "MAINTENANCE", "tipe": "PERMANENT", "pendidikan": "D3", "masa_kerja": 1.4, "attendance": 1.0, "iq_general": 140, "iq_analytical": 85, "kat_wpt": "Genius", "kat_anal": "Low Average", "disc_group": "ICD", "fit_score": 65, "rekomendasi": "LOW POTENTIAL", "berpikir": 4, "masalah": 1, "kreatif": 1, "prestasi": 3, "tangguh": 3, "kepemilikan": 3, "memimpin": 3, "emosi": 3, "perencanaan": 3, "adaptasi": 3, "jumlah_memenuhi": 5, "jumlah_gap1": 3, "jumlah_gap_gt1": 2, "highlight": "Penguatan motivasi kerja dan keberanian dalam mengambil keputusan.", "dampak": "Keraguan dalam mengambil keputusan dapat memperlambat respons kerja di lapangan sehingga efektivitas penyelesaian masalah operasional menjadi kurang optimal.", "selfdev": "1. Meningkatkan motivasi pencapaian kerja.\n2. Mengembangkan ketegasan leadership.\n3. Melatih keberanian mengambil keputusan.", "rekom_atasan": "1. Berikan challenge target operasional.\n2. Coaching leadership & confidence building.\n3. Berikan feedback rutin terhadap performa kerja.", "deskKognitif": "CUKUP TAKTIKAL", "deskKinerja": "OPERASIONAL CUKUP", "deskLeadership": "CUKUP BERPOTENSI MEMIMPIN"}, {"nik": "25000338", "name": "FAHMI NAYA SIDIQ", "jabatan": "FOREMAN MAINTENANCE PROCESSING ASEPTIC", "departement": "MAINTENANCE", "tipe": "CONTRACT", "pendidikan": "S1", "masa_kerja": 1.0, "attendance": 1.0, "iq_general": 100, "iq_analytical": 67, "kat_wpt": "Average", "kat_anal": "Extremely Low", "disc_group": "D", "fit_score": 65, "rekomendasi": "LOW POTENTIAL", "berpikir": 3, "masalah": 2, "kreatif": 2, "prestasi": 3, "tangguh": 3, "kepemilikan": 3, "memimpin": 2, "emosi": 3, "perencanaan": 3, "adaptasi": 3, "jumlah_memenuhi": 4, "jumlah_gap1": 5, "jumlah_gap_gt1": 1, "highlight": "Peningkatan ownership terhadap tim dan dorongan untuk berkembang lebih optimal.", "dampak": "Ownership terhadap tim yang belum kuat dapat menyebabkan keterlibatan dalam pengembangan bawahan masih terbatas sehingga peningkatan performa tim berjalan lebih lambat.", "selfdev": "1. Meningkatkan motivasi berkembang & inisiatif.\n2. Mengembangkan tanggung jawab terhadap tim.\n3. Meningkatkan konsistensi performa kerja.", "rekom_atasan": "1. Berikan monitoring target berkala.\n2. Libatkan dalam koordinasi tim kecil.\n3. Coaching ownership & accountability.", "deskKognitif": "CUKUP TAKTIKAL", "deskKinerja": "OPERASIONAL CUKUP", "deskLeadership": "CUKUP BERPOTENSI MEMIMPIN"}, {"nik": "25000468", "name": "RONY HATIURON IGNATIUS SINAGA", "jabatan": "FOREMAN MAINTENANCE UTILITY NSI", "departement": "MAINTENANCE", "tipe": "CONTRACT", "pendidikan": "S1", "masa_kerja": 0.92, "attendance": 0.986667, "iq_general": 120, "iq_analytical": 57, "kat_wpt": "Superior", "kat_anal": "Extremely Low", "disc_group": "I", "fit_score": 65, "rekomendasi": "LOW POTENTIAL", "berpikir": 4, "masalah": 1, "kreatif": 1, "prestasi": 3, "tangguh": 3, "kepemilikan": 3, "memimpin": 3, "emosi": 3, "perencanaan": 3, "adaptasi": 3, "jumlah_memenuhi": 5, "jumlah_gap1": 3, "jumlah_gap_gt1": 2, "highlight": "Stabilitas emosi saat tekanan kerja dan peningkatan tanggung jawab kerja mandiri.", "dampak": "Stabilitas emosi saat tekanan kerja yang belum konsisten dapat memengaruhi kualitas pengambilan keputusan serta tanggung jawab kerja mandiri belum berjalan optimal.", "selfdev": "1. Meningkatkan tanggung jawab kerja mandiri.\n2. Mengembangkan stabilitas emosi saat tekanan kerja.\n3. Melatih fleksibilitas dalam bekerja sama.", "rekom_atasan": "1. Berikan arahan prioritas kerja yang jelas.\n2. Coaching emotional control & teamwork.\n3. Monitoring penyelesaian pekerjaan secara rutin.", "deskKognitif": "CUKUP TAKTIKAL", "deskKinerja": "OPERASIONAL CUKUP", "deskLeadership": "CUKUP BERPOTENSI MEMIMPIN"}, {"nik": "25000495", "name": "SARIP MAULANA", "jabatan": "FOREMAN MAINTENANCE UTILITY NSI", "departement": "MAINTENANCE", "tipe": "CONTRACT", "pendidikan": "SMK", "masa_kerja": 1.9, "attendance": 1.0, "iq_general": 102, "iq_analytical": 78, "kat_wpt": "Average", "kat_anal": "Borderline", "disc_group": "D", "fit_score": 65, "rekomendasi": "LOW POTENTIAL", "berpikir": 3, "masalah": 2, "kreatif": 2, "prestasi": 2, "tangguh": 3, "kepemilikan": 3, "memimpin": 3, "emosi": 3, "perencanaan": 3, "adaptasi": 3, "jumlah_memenuhi": 4, "jumlah_gap1": 5, "jumlah_gap_gt1": 1, "highlight": "Perlu peningkatan konsistensi performa kerja, daya tahan terhadap tekanan operasional, serta penguatan inisiatif leadership.", "dampak": "Risiko performa kerja menjadi kurang stabil pada kondisi kerja dengan tekanan tinggi atau perubahan cepat, sehingga pengawasan pekerjaan, kecepatan respons masalah, dan efektivitas koordinasi tim belum optimal secara konsisten.", "selfdev": "1. Meningkatkan kemampuan problem solving operasional.\n2. Melatih konsistensi kerja dan adaptasi tekanan.\n3. Mengembangkan komunikasi dan inisiatif leadership.", "rekom_atasan": "1. Berikan arahan kerja yang jelas dan terukur.\n2. Lakukan coaching rutin terkait leadership dan keputusan kerja.\n3. Libatkan dalam pengawasan atau project kerja secara langsung.", "deskKognitif": "CUKUP TAKTIKAL", "deskKinerja": "OPERASIONAL KURANG BAGUS", "deskLeadership": "CUKUP BERPOTENSI MEMIMPIN"}, {"nik": "25000341", "name": "DEDE SANDI", "jabatan": "FOREMAN MAINTENANCE SIPA", "departement": "MAINTENANCE", "tipe": "CONTRACT", "pendidikan": "S1", "masa_kerja": 1.0, "attendance": 1.0, "iq_general": 113, "iq_analytical": 70, "kat_wpt": "High Average", "kat_anal": "Borderline", "disc_group": "S", "fit_score": 75, "rekomendasi": "MEDIUM POTENTIAL", "berpikir": 4, "masalah": 2, "kreatif": 3, "prestasi": 3, "tangguh": 3, "kepemilikan": 3, "memimpin": 3, "emosi": 3, "perencanaan": 3, "adaptasi": 3, "jumlah_memenuhi": 6, "jumlah_gap1": 3, "jumlah_gap_gt1": 1, "highlight": "Peningkatan kepercayaan diri, motivasi pencapaian, dan adaptasi terhadap perubahan kerja.", "dampak": "Kepercayaan diri dan motivasi pencapaian yang belum kuat dapat menyebabkan inisiatif kerja masih terbatas sehingga adaptasi terhadap perubahan dan dorongan performa belum maksimal.", "selfdev": "1. Meningkatkan kepercayaan diri dalam bekerja.\n2. Mengembangkan motivasi pencapaian kerja.\n3. Melatih fleksibilitas menghadapi perubahan.", "rekom_atasan": "1. Berikan target kerja bertahap.\n2. Coaching decision making & confidence.\n3. Evaluasi adaptasi terhadap perubahan kerja.", "deskKognitif": "CUKUP TAKTIKAL", "deskKinerja": "OPERASIONAL CUKUP", "deskLeadership": "CUKUP BERPOTENSI MEMIMPIN"}];
+
+const esc=s=>!s?'':String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+const d1=g=>(g||'D').trim()[0];
+
+function rLabel(r){
+  const u=(r||'').toUpperCase();
+  if(u.includes('HIGH'))return 'Medium Potential';
+  if(u.includes('MEDIUM'))return 'Medium Potential';
+  return 'Perlu Pengembangan';
+}
+
+function rec_label(r){
+  const u=(r||'').toUpperCase();
+  if(u.includes('HIGH'))return 'Medium Potential';
+  if(u.includes('MEDIUM'))return 'Medium Potential';
+  return 'Perlu Pengembangan';
+}
+
+function fitLabel(fit){
+  if(fit>=81)return'High Potential';
+  if(fit>=70)return'Medium Potential';
+  return'Perlu Pengembangan';
+}
+function fitCls(fit){
+  if(fit>=81)return'b1';
+  if(fit>=70)return'b2';
+  return'b4';
+}
+function fitColor(fit){
+  if(fit>=81)return'#16A34A';
+  if(fit>=70)return'#0284C7';
+  if(fit>=60)return'#D97706';
+  return'#6B7280';
+}
+function mcCls(fit){
+  if(fit>=81)return'mc-HP';
+  if(fit>=70)return'mc-MP';
+  return'mc-LP';
+}
+function discBadge(d){
+  const g=(d||'D').trim()[0];
+  return`<span class="bd-${g}" style="display:inline-block">${esc(d)}</span>`;
+}
+function dotBar(val,max=4,thresh=3){
+  let h='<div style="display:flex;align-items:center;gap:3px">';
+  for(let i=1;i<=max;i++){
+    const filled=i<=val;
+    const c=filled?(val>=thresh?'#ED1B24':'#F59E0B'):'#E5E7EB';
+    h+=`<span style="display:inline-block;width:11px;height:11px;border-radius:50%;background:${c};flex-shrink:0"></span>`;
+  }
+  h+=`<span style="font-size:10px;color:#667085;font-weight:700;margin-left:3px">${val}/4</span></div>`;
+  return h;
+}
+function avg3(m,a,b,c){return((m[a]||0)+(m[b]||0)+(m[c]||0))/3;}
+function avgKog(m){return avg3(m,'berpikir','masalah','kreatif');}
+function avgKin(m){return avg3(m,'prestasi','tangguh','kepemilikan');}
+function avgLead(m){return(((m.memimpin||0)+(m.emosi||0)+(m.perencanaan||0)+(m.adaptasi||0))/4);}
+function wPt(fit){return fit>=81?'#16A34A':fit>=70?'#0284C7':fit>=60?'#D97706':'#6B7280';}
+function mkC(id,type,labels,datasets,options){
+  const el=document.getElementById(id);if(!el)return;
+  new Chart(el.getContext('2d'),{type,data:{labels,datasets},options:{responsive:true,maintainAspectRatio:false,...options}});
+}
+
+// ── NAV ──────────────────────────────────────────────────────
+function showPg(id,btn){
+  document.querySelectorAll('.pg').forEach(p=>p.classList.remove('on'));
+  document.querySelectorAll('.nb').forEach(b=>b.classList.remove('on'));
+  document.getElementById(id).classList.add('on');
+  if(btn)btn.classList.add('on');
+  if(id==='pg-m'&&!_mi)initMat();
+  if(id==='pg-a'&&!_ai)initAksi();
+}
+
+// ── OVERVIEW ─────────────────────────────────────────────────
+function initOverview(){
+  const total=MGR.length;
+  const mp=MGR.filter(m=>m.fit_score>=70).length;
+  const lp=MGR.filter(m=>m.fit_score<70).length;
+  const aiq=Math.round(MGR.reduce((a,m)=>a+m.iq_general,0)/total);
+  const afit=Math.round(MGR.reduce((a,m)=>a+m.fit_score,0)/total);
+  const spv=MGR.filter(m=>m.jabatan.toUpperCase().includes('SUPERVISOR')).length;
+
+  document.getElementById('hdr-meta').innerHTML=`
+    <div style="display:flex;align-items:center;gap:7px"><div><div class="mi-val">${total}</div><div class="mi-lb">Total Peserta</div></div></div>
+    <div class="pg-r-header-meta-sep"></div>
+    <div style="display:flex;align-items:center;gap:7px"><div><div class="mi-val" style="color:#60A5FA">${mp}</div><div class="mi-lb">Medium Potential</div></div></div>
+    <div class="pg-r-header-meta-sep"></div>
+    <div style="display:flex;align-items:center;gap:7px"><div><div class="mi-val" style="color:#9CA3AF">${lp}</div><div class="mi-lb">Perlu Pengembangan</div></div></div>
+    <div class="pg-r-header-meta-sep"></div>
+    <div style="display:flex;align-items:center;gap:7px"><div><div class="mi-val" style="color:#FCD34D">${aiq}</div><div class="mi-lb">Avg IQ General</div></div></div>
+    <div class="pg-r-header-meta-sep"></div>
+    <div style="display:flex;align-items:center;gap:7px"><div><div class="mi-val" style="color:#86EFAC">${afit}</div><div class="mi-lb">Avg Fit Score</div></div></div>
+  `;
+
+  const kpiData=[
+    {cls:'kv-t',icon:'👥',lb:'Total Peserta',vl:total,m:'SPV & Foreman NSI',bar:100,bc:'#ED1B24'},
+    {cls:'kv-2',icon:'📈',lb:'Medium Potential',vl:mp,m:`Fit Score ≥70`,bar:mp/total*100,bc:'#0284C7'},
+    {cls:'kv-4',icon:'🔧',lb:'Perlu Pengembangan',vl:lp,m:`Fit Score <70`,bar:lp/total*100,bc:'#6B7280'},
+    {cls:'kv-3',icon:'🧠',lb:'Avg IQ General',vl:aiq,m:'Baseline kognitif',bar:Math.min(100,(aiq-70)/70*100),bc:'#D97706'},
+    {cls:'kv-1',icon:'📊',lb:'Avg Fit Score',vl:afit,m:'Rata-rata batch',bar:afit,bc:'#16A34A'},
+    {cls:'kv-5',icon:'🎖',lb:'SPV / Foreman',vl:`${spv}/${total-spv}`,m:'Distribusi level',bar:spv/total*100,bc:'#7C3AED'},
+  ];
+  document.getElementById('kpi-row').innerHTML=kpiData.map(d=>`
+    <div class="kpi-v2 ${d.cls}">
+      <div class="kpi-v2-icon">${d.icon}</div>
+      <div class="kpi-v2-lb">${d.lb}</div>
+      <div class="kpi-v2-vl">${d.vl}</div>
+      <div class="kpi-v2-m">${d.m}</div>
+      <div class="kpi-v2-bar"><div class="kpi-v2-bar-fill" style="width:${d.bar}%;background:${d.bc}"></div></div>
+    </div>`).join('');
+
+  // Reko chart
+  mkC('c-reko','bar',['Medium Potential','Perlu Pengembangan'],
+    [{data:[mp,lp],backgroundColor:['#0284C7','#6B7280'],borderRadius:6}],
+    {plugins:{legend:{display:false}},scales:{y:{beginAtZero:true,grid:{color:'#F3F4F6'},ticks:{stepSize:1}},x:{grid:{display:false}}}});
+
+  // Fit chart
+  const sorted=[...MGR].sort((a,b)=>b.fit_score-a.fit_score);
+  mkC('c-fit','bar',sorted.map(m=>m.name.split(' ').slice(0,2).join(' ')),
+    [{data:sorted.map(m=>m.fit_score),backgroundColor:sorted.map(m=>wPt(m.fit_score)),borderRadius:4}],
+    {plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>`${sorted[c.dataIndex].name}: Fit ${c.raw}`}}},
+     scales:{y:{beginAtZero:true,max:100,grid:{color:'#F3F4F6'},ticks:{callback:v=>v}},
+             x:{grid:{display:false},ticks:{font:{size:8},maxRotation:45}}}});
+
+  // DISC chart
+  const dc={D:0,I:0,S:0,C:0};
+  MGR.forEach(m=>{const g=d1(m.disc_group);dc[g]!==undefined?dc[g]++:dc.D++;});
+  mkC('c-disc','polarArea',['D — Dominan','I — Berpengaruh','S — Stabil','C — Cermat'],
+    [{data:[dc.D,dc.I,dc.S,dc.C],backgroundColor:['rgba(220,38,38,.7)','rgba(234,179,8,.7)','rgba(22,163,74,.7)','rgba(37,99,235,.7)']}],
+    {plugins:{legend:{position:'bottom',labels:{font:{size:10},padding:8}}}});
+
+  // Risk grid
+  const iqBelowMin=MGR.filter(m=>m.iq_general<103).length;
+  const analLow=MGR.filter(m=>m.iq_analytical<70).length;
+  const fitBelow50=MGR.filter(m=>m.fit_score<50).length;
+  document.getElementById('risk-grid').innerHTML=[
+    {cls:'rsv-T',icon:'🔴',lb:'Fit <50 (Gap Kritis)',vl:fitBelow50,dk:'Perlu review prioritas'},
+    {cls:'rsv-S',icon:'🟡',lb:'IQ General < Standar',vl:iqBelowMin,dk:'WPT <103 — perhatian'},
+    {cls:'rsv-S',icon:'🟡',lb:'Analytical IQ Rendah',vl:analLow,dk:'CFIT <70 — borderline'},
+    {cls:'rsv-T',icon:'🔴',lb:'Bench SPV',vl:mp,dk:'Medium Potential tersedia'},
+    {cls:'rsv-R',icon:'🟢',lb:'Kualitas Data',vl:'LENGKAP',dk:'Semua 19 data valid'},
+    {cls:'rsv-S',icon:'🟡',lb:'Ketergantungan Fungsi',vl:'SEDANG',dk:'Perlu monitoring rutin'},
+  ].map(d=>`<div class="rs-v2 ${d.cls}">
+    <span class="rs-v2-icon">${d.icon}</span>
+    <div class="rs-v2-lb">${d.lb}</div>
+    <div class="rs-v2-vl">${d.vl}</div>
+    <div class="rs-v2-dk">${d.dk}</div>
+  </div>`).join('');
+
+  // Dep grid
+  const depts=['PRODUCTION','MAINTENANCE'];
+  const dNames={PRODUCTION:'Production',MAINTENANCE:'Maintenance'};
+  const dColors={PRODUCTION:'#D97706',MAINTENANCE:'#0284C7'};
+  const depData=depts.map(d=>{
+    const ms=MGR.filter(m=>m.departement===d);
+    const mpC=ms.filter(m=>m.fit_score>=70).length;
+    const lpC=ms.filter(m=>m.fit_score<70).length;
+    const afit=ms.length?Math.round(ms.reduce((a,m)=>a+m.fit_score,0)/ms.length):0;
+    const risk=mpC/ms.length<0.3?'TINGGI':mpC/ms.length<0.5?'SEDANG':'TERKELOLA';
+    const riskCol={TINGGI:'#DC2626',SEDANG:'#D97706',TERKELOLA:'#16A34A'}[risk];
+    return{d,ms,mpC,lpC,afit,risk,riskCol};
+  });
+  document.getElementById('dep-grid').innerHTML=depData.map(d=>`
+    <div class="dep-k" style="border-color:${dColors[d.d]}">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:7px">
+        <span style="font-weight:700;color:${dColors[d.d]};font-size:13px">${dNames[d.d]} (${d.ms.length} orang)</span>
+        <span style="font-size:11px;background:${d.riskCol}22;color:${d.riskCol};padding:2px 9px;border-radius:20px;font-weight:700">${d.risk}</span>
+      </div>
+      <div style="font-size:12px;color:var(--ink2);line-height:1.6;margin-bottom:7px">
+        Medium Potential: <strong>${d.mpC}</strong> · Perlu Pengembangan: <strong>${d.lpC}</strong> · Avg Fit: <strong>${d.afit}</strong>
+      </div>
+      <div style="font-size:11px;color:var(--c2);background:#EFF6FF;border-radius:6px;padding:7px;line-height:1.5">
+        <strong>Rekomendasi:</strong> ${d.d==='PRODUCTION'?'Prioritaskan penguatan problem solving dan pengambilan keputusan mandiri. Coach SPV untuk transfer capability ke foreman.':'Perkuat analytical problem solving dan ownership. Dorong inisiatif perbaikan berbasis data, bukan reaktif semata.'}
+      </div>
+    </div>`).join('');
+
+  // Wawasan eksekutif
+  const topFit=[...MGR].sort((a,b)=>b.fit_score-a.fit_score).slice(0,4);
+  const avgKogAll=parseFloat((MGR.reduce((a,m)=>a+avgKog(m),0)/MGR.length).toFixed(2));
+  const avgKinAll=parseFloat((MGR.reduce((a,m)=>a+avgKin(m),0)/MGR.length).toFixed(2));
+  const avgLeadAll=parseFloat((MGR.reduce((a,m)=>a+avgLead(m),0)/MGR.length).toFixed(2));
+  const wItems=[
+    {dot:'#ED1B24',txt:`<strong>Rata-rata Fit Score batch: ${Math.round(MGR.reduce((a,m)=>a+m.fit_score,0)/MGR.length)}.</strong> Tidak ada peserta yang mencapai kategori High Potential (≥81). Seluruh batch membutuhkan pengembangan terarah sebelum perluasan tanggung jawab.`},
+    {dot:'#D97706',txt:`<strong>Gap Kognitif vs Kinerja:</strong> Rata-rata kognitif ${avgKogAll} vs rata-rata kinerja ${avgKinAll}. ${avgKogAll<avgKinAll?'Dorongan kerja lebih baik dari kapasitas analitis — perlu penguatan problem solving struktural.':'Kapasitas kognitif cukup tetapi kinerja perlu dikuatkan lebih lanjut.'}`},
+    {dot:'#0284C7',txt:`<strong>Kepemimpinan menjadi gap dominan:</strong> Rata-rata skor kepemimpinan ${avgLeadAll} — di bawah threshold optimal 3.0/4. Coaching situasional dan exposure tim yang lebih luas menjadi kebutuhan utama.`},
+    {dot:'#16A34A',txt:`<strong>Kandidat prioritas pengembangan:</strong> ${topFit.map(m=>`${m.name.split(' ')[0]} (Fit ${m.fit_score})`).join(', ')}. Keempat kandidat ini memiliki fondasi yang paling siap untuk intervensi pengembangan intensif.`},
+    {dot:'#7C3AED',txt:`<strong>IQ Analytical (CFIT) menjadi perhatian:</strong> ${MGR.filter(m=>m.iq_analytical<70).length} dari 19 peserta memiliki IQ Analytical <70 (Borderline ke bawah). Ini mengindikasikan perlunya SOP yang sangat terstruktur dan pendampingan intensif untuk situasi non-rutin.`},
+  ];
+  document.getElementById('wawasan').innerHTML=wItems.map(w=>`
+    <div class="in-row">
+      <div class="in-dot" style="background:${w.dot}"></div>
+      <div class="in-tx">${w.txt}</div>
+    </div>`).join('');
+}
+
+// ── INDIVIDU ─────────────────────────────────────────────────
+let _flt='all', _search='';
+function flt(key,btn){
+  _flt=key;
+  document.querySelectorAll('.fb').forEach(b=>b.classList.remove('on'));
+  if(btn)btn.classList.add('on');
+  renderCards();
+}
+function doSearch(){_search=document.getElementById('inp-s').value.toLowerCase();renderCards();}
+
+function renderCards(){
+  let list=MGR.filter(m=>{
+    const u=m.rekomendasi.toUpperCase();
+    if(_flt==='MP'&&m.fit_score<70)return false;
+    if(_flt==='LP'&&m.fit_score>=70)return false;
+    if(_flt==='PRODUCTION'&&m.departement!=='PRODUCTION')return false;
+    if(_flt==='MAINTENANCE'&&m.departement!=='MAINTENANCE')return false;
+    if(_flt==='SUPERVISOR'&&!m.jabatan.toUpperCase().includes('SUPERVISOR'))return false;
+    if(_flt==='FOREMAN'&&m.jabatan.toUpperCase().includes('SUPERVISOR'))return false;
+    if(_search&&!m.name.toLowerCase().includes(_search)&&!m.jabatan.toLowerCase().includes(_search))return false;
+    return true;
+  });
+  const grid=document.getElementById('mg-grid');
+  if(!list.length){grid.innerHTML='<div style="grid-column:1/-1;padding:36px;text-align:center;color:var(--abu);background:#fff;border-radius:12px;border:1px dashed var(--bd)">Tidak ada data yang sesuai filter</div>';return;}
+  grid.innerHTML=list.sort((a,b)=>b.fit_score-a.fit_score).map(m=>{
+    const fc=fitColor(m.fit_score);
+    const kg=avgKog(m).toFixed(1),ki=avgKin(m).toFixed(1),ld=avgLead(m).toFixed(1);
+    return`<div class="mc ${mcCls(m.fit_score)}" onclick="openMo('${esc(m.nik)}')">
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:5px">
+        <div>
+          <div class="mc-nm">${esc(m.name)}</div>
+          <div class="mc-jb">${esc(m.jabatan)} · ${esc(m.departement)}</div>
+        </div>
+        <div style="text-align:right;flex-shrink:0">
+          <div style="font-size:18px;font-weight:800;color:${fc};line-height:1">${m.fit_score}</div>
+          <div style="font-size:9px;color:var(--abu)">Fit Score</div>
+        </div>
+      </div>
+      <div class="fit-bar-wrap"><div class="fit-bar-bg"><div class="fit-bar-fill" style="width:${m.fit_score}%;background:${fc}"></div></div></div>
+      <div class="mc-sk">
+        <div class="msi"><div class="msv" style="color:#7C3AED">${kg}</div><div class="msl">Kognitif</div></div>
+        <div class="msi"><div class="msv" style="color:#D97706">${ki}</div><div class="msl">Kinerja</div></div>
+        <div class="msi"><div class="msv" style="color:#0284C7">${ld}</div><div class="msl">Leadership</div></div>
+      </div>
+      <div class="mc-ft">
+        <span class="br ${fitCls(m.fit_score)}">${fitLabel(m.fit_score)}</span>
+        ${discBadge(m.disc_group)}
+      </div>
+      <div style="margin-top:6px;font-size:10px;color:var(--abu)">IQ: ${m.iq_general} (${m.kat_wpt}) · Anal: ${m.iq_analytical} (${m.kat_anal}) · ${m.tipe}</div>
+    </div>`;
+  }).join('');
+}
+
+// ── MODAL ─────────────────────────────────────────────────────
+function openMo(nik){
+  const m=MGR.find(x=>x.nik===nik);if(!m)return;
+  const kg=avgKog(m),ki=avgKin(m),ld=avgLead(m);
+  const fc=fitColor(m.fit_score);
+  const initials=m.name.split(' ').map(w=>w[0]||'').slice(0,2).join('');
+  const selfdevLines=(m.selfdev||'').split('\n').filter(Boolean).map(s=>s.replace(/^\d+\.\s*/,''));
+  const rekomLines=(m.rekom_atasan||'').split('\n').filter(Boolean).map(s=>s.replace(/^\d+\.\s*/,''));
+
+  function barRow(label, val, max=4, color='#ED1B24'){
+    const pct=(val/max)*100;
+    const c=val>=3?color:'#F59E0B';
+    return`<div class="bar-row">
+      <span class="bar-lb">${label}</span>
+      <div class="bar-tr"><div class="bar-fi" style="width:${pct}%;background:${c}"></div></div>
+      <span class="bar-n">${val}</span>
+      ${dotBar(val,max,3)}
+    </div>`;
+  }
+
+  function stepBox(num,title,content,color='#ED1B24'){
+    return`<div class="step-row">
+      <div class="step-num" style="background:${color}">${num}</div>
+      <div class="step-body">
+        <div class="step-title">${title}</div>
+        <div class="step-text">${content}</div>
+      </div>
+    </div>`;
+  }
+
+  const html=`
+  <div class="mo-hd">
+    <div style="display:flex;align-items:center;gap:12px">
+      <div style="width:48px;height:48px;border-radius:50%;background:rgba(255,255,255,.15);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:1.1rem;color:#fff;flex-shrink:0">${initials}</div>
+      <div style="flex:1">
+        <div class="mo-nm">${esc(m.name)}</div>
+        <div class="mo-jb">${esc(m.jabatan)} · ${esc(m.departement)} · NSI</div>
+        <div class="mo-mt">
+          <span>NIK: <b>${m.nik.substring(0,4)}****</b></span>
+          <span>Status: <b>${esc(m.tipe)}</b></span>
+          <span>Pendidikan: <b>${esc(m.pendidikan)}</b></span>
+          <span>Masa Kerja: <b>${m.masa_kerja||'—'} thn</b></span>
+          <span>Attendance: <b>${Math.round((m.attendance||0)*100)} hari</b></span>
+        </div>
+      </div>
+      <div style="text-align:right;flex-shrink:0">
+        <div style="font-size:32px;font-weight:800;color:${fc};line-height:1">${m.fit_score}</div>
+        <div style="font-size:10px;color:rgba(255,255,255,.4)">Fit Score</div>
+        <span class="br ${fitCls(m.fit_score)}" style="margin-top:4px;display:inline-block">${fitLabel(m.fit_score)}</span>
+      </div>
+    </div>
+    <button class="mo-cl" onclick="closeMo2()">✕</button>
+  </div>
+  <div class="mo-bd">
+    <div class="mo-tab-row">
+      <button class="mo-tab on" onclick="moTab('t-summary',this)">Summary</button>
+      <button class="mo-tab" onclick="moTab('t-evidence',this)">Evidence Map</button>
+      <button class="mo-tab" onclick="moTab('t-profil',this)">Profil Kerja</button>
+      <button class="mo-tab" onclick="moTab('t-growth',this)">Growth</button>
+      <button class="mo-tab" onclick="moTab('t-guidance',this)">Guidance</button>
+      <button class="mo-tab" onclick="moTab('t-guard',this)">Guardianship</button>
+      <button class="mo-tab" onclick="moTab('t-1on1',this)">1-on-1</button>
+    </div>
+
+    <!-- SUMMARY -->
+    <div class="mo-sec on" id="t-summary">
+      <div class="msec">
+        <div class="ms-t r">Ringkasan Fit Jabatan</div>
+        <div class="s4g" style="margin-bottom:10px">
+          <div class="si"><div class="siv" style="color:${fc}">${m.fit_score}</div><div class="sil">Fit Score</div></div>
+          <div class="si"><div class="siv" style="color:#7C3AED">${m.iq_general}</div><div class="sil">IQ General (WPT)</div></div>
+          <div class="si"><div class="siv" style="color:#0284C7">${m.iq_analytical}</div><div class="sil">IQ Analytical (CFIT)</div></div>
+          <div class="si"><div class="siv">${m.jumlah_memenuhi}/10</div><div class="sil">Aspek Memenuhi</div></div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px">
+          <div style="background:#EFF6FF;border:1px solid #BFDBFE;border-radius:8px;padding:10px">
+            <div style="font-size:10px;font-weight:700;color:#1E40AF;text-transform:uppercase;letter-spacing:.5px;margin-bottom:3px">WPT — ${esc(m.kat_wpt)}</div>
+            <div style="font-size:11px;color:#1E40AF;line-height:1.5">IQ ${m.iq_general} · ${m.iq_general>=103?'✅ Di atas standar min':'⚠ Di bawah standar min 103'}</div>
+          </div>
+          <div style="background:#F5F3FF;border:1px solid #DDD6FE;border-radius:8px;padding:10px">
+            <div style="font-size:10px;font-weight:700;color:#6D28D9;text-transform:uppercase;letter-spacing:.5px;margin-bottom:3px">CFIT — ${esc(m.kat_anal)}</div>
+            <div style="font-size:11px;color:#5B21B6;line-height:1.5">Analytical IQ ${m.iq_analytical}</div>
+          </div>
+        </div>
+        <div style="background:#FFFBEB;border:1px solid #FDE68A;border-radius:8px;padding:11px;margin-bottom:8px">
+          <div style="font-size:10px;font-weight:700;color:#92400E;text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px">🎯 Area Pengembangan Utama</div>
+          <div style="font-size:12px;color:#78350F;line-height:1.6">${esc(m.highlight)}</div>
+        </div>
+        <div style="background:#FFF7ED;border:1px solid #FED7AA;border-radius:8px;padding:11px">
+          <div style="font-size:10px;font-weight:700;color:#9A3412;text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px">⚠ Risiko jika Tidak Ditindaklanjuti</div>
+          <div style="font-size:12px;color:#9A3412;line-height:1.6">${esc(m.dampak)}</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- EVIDENCE MAP -->
+    <div class="mo-sec" id="t-evidence">
+      <div class="msec">
+        <div class="ms-t b">Aspek Kognitif — ${esc(m.deskKognitif)}</div>
+        ${barRow('Kemampuan Berpikir & Pemahaman',m.berpikir)}
+        ${barRow('Kemampuan Pemecahan Masalah',m.masalah)}
+        ${barRow('Kemampuan Berpikir Kreatif',m.kreatif)}
+      </div>
+      <div class="msec">
+        <div class="ms-t o">Aspek Kinerja — ${esc(m.deskKinerja)}</div>
+        ${barRow('Dorongan Berprestasi & Proaktif',m.prestasi,'#D97706')}
+        ${barRow('Ketangguhan Kerja',m.tangguh,'#D97706')}
+        ${barRow('Kepemilikan terhadap Pekerjaan',m.kepemilikan,'#D97706')}
+      </div>
+      <div class="msec">
+        <div class="ms-t r">Aspek Kepemimpinan — ${esc(m.deskLeadership)}</div>
+        ${barRow('Memimpin & Mengembangkan Bawahan',m.memimpin)}
+        ${barRow('Pengelolaan & Kematangan Emosi',m.emosi)}
+        ${barRow('Perencanaan & Pengambilan Keputusan',m.perencanaan)}
+        ${barRow('Adaptasi terhadap Pekerjaan & Perubahan',m.adaptasi)}
+      </div>
+      <div style="padding:8px 11px;background:var(--sf);border-radius:7px;font-size:11px;color:var(--abu)">
+        ✅ Memenuhi Standar: <strong style="color:#10B981">${m.jumlah_memenuhi}</strong> &nbsp;·&nbsp; ⚠ Gap-1: <strong style="color:#F59E0B">${m.jumlah_gap1}</strong> &nbsp;·&nbsp; ❌ Gap>1: <strong style="color:#EF4444">${m.jumlah_gap_gt1}</strong>
+      </div>
+    </div>
+
+    <!-- PROFIL KERJA -->
+    <div class="mo-sec" id="t-profil">
+      <div class="msec">
+        <div class="ms-t g">Profil Kerja & Karakteristik</div>
+        <div class="s2g" style="margin-bottom:10px">
+          <div style="background:var(--sf);border-radius:8px;padding:11px">
+            <div style="font-size:10px;font-weight:700;color:var(--abu);text-transform:uppercase;margin-bottom:4px">Orientasi Kerja</div>
+            <div style="font-size:12px;font-weight:700">${['I','S'].some(x=>m.disc_group.includes(x))?'👥 Teamwork-Oriented':'⚡ Individual-Driven'}</div>
+            <div style="font-size:11px;color:var(--abu);margin-top:3px;line-height:1.5">${['I','S'].some(x=>m.disc_group.includes(x))?`${m.name.split(' ')[0]} bekerja lebih efektif dalam setting kolaboratif — butuh interaksi untuk performa optimal.`:`${m.name.split(' ')[0]} lebih produktif saat bekerja dengan target yang jelas dan terstruktur.`}</div>
+          </div>
+          <div style="background:var(--sf);border-radius:8px;padding:11px">
+            <div style="font-size:10px;font-weight:700;color:var(--abu);text-transform:uppercase;margin-bottom:4px">Mode Operasi</div>
+            <div style="font-size:12px;font-weight:700">${avgKog(m)>=3.3&&m.iq_general>=110?'📐 Potensi Strategis':'⚙ Eksekutor Operasional'}</div>
+            <div style="font-size:11px;color:var(--abu);margin-top:3px;line-height:1.5">${avgKog(m)>=3.3&&m.iq_general>=110?'Kapasitas membuka peluang berkembang melampaui eksekusi. Perlu pembinaan untuk diarahkan ke perencanaan.':'Paling efektif pada tugas terstruktur. Fokus pada kemandirian eksekusi terlebih dahulu.'}</div>
+          </div>
+          <div style="background:var(--sf);border-radius:8px;padding:11px">
+            <div style="font-size:10px;font-weight:700;color:var(--abu);text-transform:uppercase;margin-bottom:4px">Kapasitas Tim</div>
+            <div style="font-size:12px;font-weight:700">${m.memimpin>=4?'🏗 Tim Menengah–Besar':m.memimpin>=3?'🏗 Tim Kecil–Menengah':'🏗 Tim Kecil (≤5)'}</div>
+            <div style="font-size:11px;color:var(--abu);margin-top:3px;line-height:1.5">${m.memimpin>=3?'Cukup mampu memimpin tim kecil-menengah dengan arahan terstruktur.':'Lebih efektif dengan lingkup kepemimpinan terbatas dan terdefinisi.'}</div>
+          </div>
+          <div style="background:var(--sf);border-radius:8px;padding:11px">
+            <div style="font-size:10px;font-weight:700;color:var(--abu);text-transform:uppercase;margin-bottom:4px">Gaya Komunikasi</div>
+            <div style="font-size:12px;font-weight:700">${m.disc_group.includes('I')?'💬 Verbal & Relasional':m.disc_group.includes('D')?'💬 Direktif & Berorientasi Hasil':m.disc_group.includes('S')?'💬 Tenang & Konsisten':'💬 Analitis & Terstruktur'}</div>
+            <div style="font-size:11px;color:var(--abu);margin-top:3px;line-height:1.5">${m.disc_group.includes('I')?'Komunikatif dan ekspresif. Efektif untuk motivasi tim. Perlu dikuatkan pada komunikasi berbasis data.':m.disc_group.includes('D')?'Langsung dan fokus output. Efektif untuk arahan cepat. Perlu diimbangi empati.':m.disc_group.includes('S')?'Stabil dan dapat diandalkan. Efektif menjaga harmoni. Perlu dikuatkan ketegasannya.':'Berbasis fakta dan detail. Efektif untuk laporan teknis. Perlu dikuatkan sisi interpersonal.'}</div>
+          </div>
+        </div>
+        <div style="background:#F5F3FF;border:1px solid #DDD6FE;border-radius:8px;padding:11px">
+          <div style="font-size:10px;font-weight:700;color:#6D28D9;text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px">📈 Arah Pengembangan Business Acumen</div>
+          <div style="font-size:12px;color:#5B21B6;line-height:1.6">Kembangkan pemahaman ${esc(m.name.split(' ')[0])} tentang bagaimana pekerjaannya sehari-hari berdampak pada hasil bisnis secara keseluruhan. Mulai dari konteks sederhana: bagaimana keputusan di lapangan mempengaruhi efisiensi, biaya, dan kualitas output. Dari sini, secara bertahap bangun pemahaman tentang bagaimana kinerja tim berkontribusi pada target departemen.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- GROWTH -->
+    <div class="mo-sec" id="t-growth">
+      <div class="msec">
+        <div class="ms-t g">Growth Self Development — Langkah Pengembangan Mandiri</div>
+        <div style="background:#F0FDF4;border:1px solid #BBF7D0;border-radius:8px;padding:9px 12px;margin-bottom:12px;font-size:11px;color:#166534;line-height:1.55">
+          Langkah-langkah ini dirancang <strong>grounded dan bertahap</strong> — tindakan nyata yang bisa dimulai segera. Urutan penting. Jangan lompat ke langkah berikutnya sebelum langkah sebelumnya menjadi kebiasaan.
+        </div>
+        ${stepBox(1,'Bangun Fondasi Refleksi Diri',`Mulai dari kesadaran objektif. ${esc(m.name.split(' ')[0])} perlu mengenali posisinya saat ini — bukan dari penilaian orang lain, tapi dari pengamatannya sendiri. Buat jurnal kerja mingguan: apa yang dikerjakan, keputusan apa yang diambil, hasilnya apa, dan apa yang bisa diperbaiki. Lakukan konsisten 4 minggu.`,'#10B981')}
+        ${m.masalah<3?stepBox(2,'Latih Problem Solving di Pekerjaan Nyata','Pelajari metode 5 Why atau Fishbone bukan di kelas — langsung aplikasikan pada masalah nyata. Setiap ada masalah, tulis analisisnya dan tunjukkan ke atasan untuk dikalibrasi. Targetkan minimal 3 kasus terdokumentasi.','#10B981'):''}
+        ${m.memimpin<3||m.perencanaan<3?stepBox(3,'Kembangkan Leadership dari Hal Kecil','Mulai dari briefing shift yang terstruktur, pembagian tugas harian yang jelas, dan evaluasi hasil kerja tim. Dokumentasikan — apa yang disampaikan, bagaimana respons tim, apa yang perlu diubah.','#10B981'):''}
+        ${m.kepemilikan<3?stepBox(4,'Bangun Habit Ownership',`Pilih satu masalah di area kerja yang bisa diselesaikan dalam 2 minggu — dan selesaikan tanpa menunggu instruksi. Dokumentasikan prosesnya dan hasilnya, lalu presentasikan ke atasan.`,'#10B981'):''}
+        ${stepBox(5,'Cari Role Model Internal',`Identifikasi satu orang di organisasi yang ${esc(m.name.split(' ')[0])} anggap efektif sebagai pemimpin. Amati cara kerjanya, tanyakan pendapatnya, dan adopsi satu kebiasaan positif darinya setiap bulan.`,'#10B981')}
+        ${selfdevLines.length?`<div style="margin-top:10px"><div class="ms-t" style="color:var(--c1);border-color:#BBF7D0">Komitmen Self Development</div><ul style="list-style:none;padding:0">${selfdevLines.map(s=>`<li style="padding:6px 10px;font-size:12px;border-radius:6px;background:var(--sf);margin-bottom:5px;display:flex;align-items:flex-start;gap:7px"><span style="color:#16A34A;font-weight:700;flex-shrink:0">→</span>${esc(s)}</li>`).join('')}</ul></div>`:''}
+      </div>
+    </div>
+
+    <!-- GUIDANCE -->
+    <div class="mo-sec" id="t-guidance">
+      <div class="msec">
+        <div class="ms-t b">Guidance dari Atasan & Lingkungan</div>
+        <div style="background:#EFF6FF;border:1px solid #BFDBFE;border-radius:8px;padding:9px 12px;margin-bottom:12px;font-size:11px;color:#1E40AF;line-height:1.55">
+          Pengembangan tidak terjadi dalam vakum. Atasan dan lingkungan kerja adalah faktor yang sama pentingnya dengan kemauan individu.
+        </div>
+        ${stepBox('A','Berikan Ekspektasi yang Sangat Spesifik',`Hindari instruksi ambiguous. Berikan target terukur dan jelas — bukan "tingkatkan performanya" tapi target yang bisa diverifikasi setiap minggu. ${esc(m.name.split(' ')[0])} bekerja lebih baik saat tahu persis apa yang diukur.`,'#3B82F6')}
+        ${['I','S'].some(x=>m.disc_group.includes(x))?stepBox('B','Bangun Koneksi Personal yang Konsisten',`Profil DISC ${esc(m.disc_group)} merespons lebih baik pada lingkungan yang supportif. Atasan perlu meluangkan waktu 1-on-1 reguler (minimal 2 minggu sekali), bukan hanya saat ada masalah.`,'#3B82F6'):''}
+        ${m.perencanaan<3?stepBox('C','Dampingi Proses Berpikir, Bukan Hanya Evaluasi Hasil',`Saat ${esc(m.name.split(' ')[0])} membuat rencana, duduk bersama dan panduan cara berpikir — bukan sekadar menyetujui atau menolak. Tanya: "Apa risikonya? Apa alternatifnya?"`,'#3B82F6'):''}
+        ${m.masalah<3?stepBox('D','Jadikan Masalah Lapangan sebagai Bahan Belajar',`Setiap ada masalah operasional, dorong ${esc(m.name.split(' ')[0])} untuk menganalisis sendiri dulu. Tanya: "Menurut kamu akar masalahnya apa?" Baru kemudian kalibrasi bersama.`,'#3B82F6'):''}
+        ${stepBox('E','Berikan Exposure Bertahap ke Level Berikutnya',`Secara berkala, ajak ${esc(m.name.split(' ')[0])} dalam rapat perencanaan atau review lintas fungsi sebagai observer. Ini membangun konteks yang lebih luas dan menyiapkan mental untuk bertumbuh.`,'#3B82F6')}
+        ${stepBox('F','Feedback Berbasis Perilaku, Bukan Karakter','Gunakan framing spesifik: "Saat kamu melakukan X di situasi Y, dampaknya adalah Z." Hindari generalisasi. Feedback spesifik lebih mudah ditindaklanjuti.','#3B82F6')}
+        ${rekomLines.length?`<div style="margin-top:10px"><div class="ms-t" style="color:var(--c2);border-color:#BFDBFE">Rekomendasi Tindak Lanjut dari Atasan</div><ul style="list-style:none;padding:0">${rekomLines.map(s=>`<li style="padding:6px 10px;font-size:12px;border-radius:6px;background:var(--sf);margin-bottom:5px;display:flex;align-items:flex-start;gap:7px"><span style="color:#3B82F6;font-weight:700;flex-shrink:0">→</span>${esc(s)}</li>`).join('')}</ul></div>`:''}
+      </div>
+    </div>
+
+    <!-- GUARDIANSHIP -->
+    <div class="mo-sec" id="t-guard">
+      <div class="msec">
+        <div class="ms-t r">Guardianship — Risiko yang Perlu Diawasi</div>
+        <div style="background:#FEF2F2;border:1px solid #FECACA;border-radius:8px;padding:9px 12px;margin-bottom:12px;font-size:11px;color:#991B1B;line-height:1.55">
+          Early warning system untuk atasan langsung. Tujuannya proteksi — bagi karyawan maupun bisnis. Bukan tentang mencurigai, tapi tentang kesiapan merespons lebih awal.
+        </div>
+        ${m.kepemilikan<3?`<div style="background:#FEF2F2;border:1px solid #FECACA;border-radius:8px;padding:11px;margin-bottom:8px"><div style="font-size:12px;font-weight:700;color:#991B1B;margin-bottom:4px">🔴 Lepas Tanggung Jawab saat Tekanan Tinggi</div><div style="font-size:11px;color:#991B1B;line-height:1.6">Berpotensi menarik diri atau menunggu atasan saat beban kerja meningkat. Monitor: apakah ada pola "eskalasi prematur" atau "diam saat ada masalah"? Jika terjadi >2x dalam sebulan, perlu coaching intensif.</div></div>`:''}
+        ${m.emosi<3||m.disc_group.includes('D')?`<div style="background:#FEF2F2;border:1px solid #FECACA;border-radius:8px;padding:11px;margin-bottom:8px"><div style="font-size:12px;font-weight:700;color:#991B1B;margin-bottom:4px">🔴 Ketegangan Interpersonal dengan Tim</div><div style="font-size:11px;color:#991B1B;line-height:1.6">Profil DISC ${esc(m.disc_group)} dan kematangan emosi yang masih berkembang berpotensi menciptakan gesekan. Monitor: apakah ada keluhan dari bawahan atau perubahan dinamika tim? Lakukan pulse check informal tiap bulan.</div></div>`:''}
+        ${m.fit_score<50?`<div style="background:#FEF2F2;border:1px solid #FECACA;border-radius:8px;padding:11px;margin-bottom:8px"><div style="font-size:12px;font-weight:700;color:#991B1B;margin-bottom:4px">🔴 Risiko Stagnasi</div><div style="font-size:11px;color:#991B1B;line-height:1.6">Fit Score ${m.fit_score} menunjukkan gap signifikan. Jika dalam 90 hari tidak ada perbaikan terukur, risiko karyawan menormalisasi performa rendah. Perlu checkpoint ketat di 30 dan 60 hari.</div></div>`:''}
+        ${m.iq_general<103?`<div style="background:#FFFBEB;border:1px solid #FDE68A;border-radius:8px;padding:11px;margin-bottom:8px"><div style="font-size:12px;font-weight:700;color:#92400E;margin-bottom:4px">🟡 Kesulitan pada Situasi Non-Rutin</div><div style="font-size:11px;color:#92400E;line-height:1.6">Kapasitas kognitif WPT ${m.iq_general} (${esc(m.kat_wpt)}) berarti ${esc(m.name.split(' ')[0])} akan kesulitan pada situasi yang belum pernah dijumpai. Pastikan semua skenario kritis terdokumentasi dalam SOP yang mudah diikuti.</div></div>`:''}
+        ${m.prestasi<3&&m.tangguh<3?`<div style="background:#FFFBEB;border:1px solid #FDE68A;border-radius:8px;padding:11px;margin-bottom:8px"><div style="font-size:12px;font-weight:700;color:#92400E;margin-bottom:4px">🟡 Rentan Demotivasi</div><div style="font-size:11px;color:#92400E;line-height:1.6">Dorongan berprestasi dan ketangguhan yang belum kuat membuat ${esc(m.name.split(' ')[0])} rentan kehilangan motivasi saat hasil tidak sesuai harapan. Atasan perlu aktif memberikan pengakuan atas progress kecil.</div></div>`:''}
+        <div style="background:#F0FDF4;border:1px solid #BBF7D0;border-radius:8px;padding:11px">
+          <div style="font-size:12px;font-weight:700;color:#166534;margin-bottom:4px">✅ Monitor Reguler yang Disarankan</div>
+          <div style="font-size:11px;color:#166534;line-height:1.6">Check-in mingguan 10-15 menit · Pulse check tim bulanan · Review progress di 30, 60, dan 90 hari · Kalibrasi dengan departemen dan user setelah 8-12 minggu</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 1-ON-1 GUIDE -->
+    <div class="mo-sec" id="t-1on1">
+      <div class="msec">
+        <div class="ms-t b">Panduan 1-on-1 — Pertanyaan Penggalian Mendalam</div>
+        <div style="background:#EFF6FF;border:1px solid #BFDBFE;border-radius:8px;padding:10px 12px;margin-bottom:12px">
+          <div style="font-size:10px;font-weight:700;color:#1E40AF;margin-bottom:4px">📋 Konteks Sesi · ${esc(m.jabatan)} · ${esc(m.departement)}</div>
+          <div style="font-size:11px;color:#1E40AF;line-height:1.6"><strong>Tujuan:</strong> Membangun kesadaran, komitmen, dan rencana konkret. &nbsp;|&nbsp; <strong>Framing:</strong> "Ini percakapan pengembangan — bukan evaluasi akhir." &nbsp;|&nbsp; <strong>Hindari:</strong> Label tetap, nada evaluatif, perbandingan dengan orang lain.</div>
+        </div>
+        ${[
+          ['Kepemimpinan Operasional','Ceritakan hari terakhir kamu masuk kerja — apa yang pertama kali kamu lakukan, dan kenapa itu yang pertama?','Kalau ada anggota tim yang stuck dengan masalah, apa yang biasanya terjadi selanjutnya?'],
+          ['Pengambilan Keputusan','Kapan terakhir kali kamu mengambil keputusan yang hasilnya tidak sesuai harapan? Ceritakan — apa yang terjadi, dan apa yang kamu lakukan setelahnya?','Pada saat itu, apa yang ada di kepalamu sebelum kamu memutuskan?'],
+          ['Tanggung Jawab & Ownership','Ceritakan satu masalah di area kerjamu yang sudah cukup lama ada tapi belum terselesaikan. Kenapa belum?','Siapa yang paling kamu andalkan di tim kamu saat ini, dan kenapa justru itu?'],
+          ['Pengelolaan Tim','Ceritakan anggota tim yang paling sering membuat kamu harus turun tangan. Apa yang biasanya terjadi?','Pernah tidak ada konflik atau ketegangan di tim — apa yang terjadi dan kamu lakukan apa?'],
+          ['Pertumbuhan & Kesadaran Diri','Kalau kamu jujur pada diri sendiri — apa satu hal yang kalau diperbaiki akan membuat kamu jauh lebih efektif di peran ini?','Kapan terakhir kamu merasa betul-betul tidak tahu harus berbuat apa di pekerjaan? Ceritakan.'],
+        ].map(([topic,q1,q2])=>`
+          <div style="background:#FAFAF7;border:1px solid #E5E7EB;border-left:3px solid #3B82F6;border-radius:8px;padding:11px 13px;margin-bottom:8px">
+            <div style="font-size:12px;font-weight:700;color:var(--ink);margin-bottom:5px">${topic}</div>
+            <div style="font-size:12px;color:#1E40AF;line-height:1.6;margin-bottom:4px">❝ ${q1} ❞</div>
+            <div style="font-size:11px;color:#667085;line-height:1.55;padding-left:8px;border-left:2px solid #BFDBFE">Gali lebih dalam: ❝ ${q2} ❞</div>
+          </div>`).join('')}
+        ${stepBox('A','Langkah Konkret: Alignment Ekspektasi',`Atasan duduk bersama ${esc(m.name.split(' ')[0])} dan jelaskan sangat spesifik: apa yang diharapkan dari jabatan ini, indikator kinerja minimalnya, dan seperti apa "berhasil" di peran ini.`,'#6366F1')}
+        ${stepBox('B','Fokus pada 1 Gap Prioritas',`Dari semua gap yang ada, sepakati 1 hal paling kritikal untuk diperbaiki terlebih dahulu. Focus area: ${esc(m.highlight.substring(0,60))}...`,'#6366F1')}
+        ${stepBox('C','Micro-Target Mingguan + Check-in','Pecah gap besar menjadi tindakan kecil yang bisa dieksekusi dalam seminggu. Check-in singkat 10-15 menit setiap minggu. Lakukan konsisten minimal 4 minggu.','#6366F1')}
+        ${stepBox('D','Review 4-6 Minggu + Kalibrasi Departemen & User','Tinjau apakah micro-target tercapai. Setelah 8-12 minggu, diskusikan progress bersama kepala departemen dan user terkait untuk kalibrasi dan penyesuaian langkah berikutnya.','#6366F1')}
+      </div>
+    </div>
+  </div>`;
+
+  document.getElementById('mo-bx').innerHTML=html;
+  document.getElementById('mo-ov').classList.add('on');
+  document.body.style.overflow='hidden';
+}
+
+function moTab(id,btn){
+  document.querySelectorAll('.mo-sec').forEach(s=>s.classList.remove('on'));
+  document.querySelectorAll('.mo-tab').forEach(b=>b.classList.remove('on'));
+  document.getElementById(id).classList.add('on');
+  if(btn)btn.classList.add('on');
+}
+function closeMo(e){if(e.target===document.getElementById('mo-ov'))closeMo2();}
+function closeMo2(){document.getElementById('mo-ov').classList.remove('on');document.body.style.overflow='';}
+
+// ── MATRIKS ──────────────────────────────────────────────────
+let _mi=false;
+function initMat(){
+  if(_mi)return;_mi=true;
+
+  // Scatter: Fit vs IQ
+  const ppCtx=document.getElementById('c-pp').getContext('2d');
+  new Chart(ppCtx,{type:'scatter',data:{datasets:[{label:'Peserta',
+    data:MGR.map(m=>({x:m.iq_general+(Math.random()-.5)*3,y:m.fit_score+(Math.random()-.5)*2,m})),
+    backgroundColor:MGR.map(m=>wPt(m.fit_score)),pointRadius:9,pointHoverRadius:13}]},
+    options:{responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>`${c.raw.m.name} — Fit ${c.raw.m.fit_score}, IQ ${c.raw.m.iq_general}`}}},
+      scales:{x:{min:60,max:150,title:{display:true,text:'IQ General (WPT)'},grid:{color:'#F3F4F6'}},
+              y:{min:0,max:100,title:{display:true,text:'Fit Score'},grid:{color:'#F3F4F6'}}}}});
+  document.getElementById('pp-lg').innerHTML=[['#0284C7','Medium Potential (≥70)'],['#6B7280','Perlu Pengembangan (<70)']].map(([c,l])=>`<div class="lg-it"><div class="lg-dot" style="background:${c}"></div>${l}</div>`).join('');
+
+  // Radar: dept comparison
+  const depts=['PRODUCTION','MAINTENANCE'];
+  const dColors={PRODUCTION:'#D97706',MAINTENANCE:'#0284C7'};
+  const dData=depts.map(d=>{
+    const ms=MGR.filter(m=>m.departement===d);
+    const n=ms.length||1;
+    return{d,
+      kog:parseFloat((ms.reduce((a,m)=>a+avgKog(m),0)/n).toFixed(2)),
+      kin:parseFloat((ms.reduce((a,m)=>a+avgKin(m),0)/n).toFixed(2)),
+      lead:parseFloat((ms.reduce((a,m)=>a+avgLead(m),0)/n).toFixed(2)),
+      berpikir:parseFloat((ms.reduce((a,m)=>a+m.berpikir,0)/n).toFixed(2)),
+      emosi:parseFloat((ms.reduce((a,m)=>a+m.emosi,0)/n).toFixed(2)),
+      fit:parseFloat((ms.reduce((a,m)=>a+m.fit_score,0)/n/25).toFixed(2)),
+    };
+  });
+  const rCtx=document.getElementById('c-radar').getContext('2d');
+  new Chart(rCtx,{type:'radar',
+    data:{labels:['Kognitif','Kinerja','Kepemimpinan','Berpikir','Kematangan Emosi','Fit (norm)'],
+      datasets:dData.map(d=>({label:d.d,
+        data:[d.kog,d.kin,d.lead,d.berpikir,d.emosi,d.fit],
+        borderColor:dColors[d.d],backgroundColor:dColors[d.d]+'28',
+        borderWidth:2.5,pointRadius:5,pointBackgroundColor:dColors[d.d],pointBorderColor:'#fff',pointBorderWidth:1.5}))},
+    options:{responsive:false,maintainAspectRatio:false,
+      scales:{r:{min:0,max:4,ticks:{stepSize:1,font:{size:9},backdropColor:'rgba(255,255,255,.7)',color:'#667085'},
+        pointLabels:{font:{size:10,weight:'500'},color:'#1F2933',padding:8},
+        grid:{color:'rgba(0,0,0,.07)'},angleLines:{color:'rgba(0,0,0,.08)'}}},
+      plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>`${c.dataset.label}: ${c.raw}`}}}}});
+  document.getElementById('radar-lg').innerHTML=depts.map(d=>`<div class="lg-it"><div class="lg-dot" style="background:${dColors[d]}"></div>${d}</div>`).join('');
+
+  // Heatmap
+  const dims=[
+    ['Kemampuan Berpikir',m=>m.berpikir],['Pemecahan Masalah',m=>m.masalah],['Berpikir Kreatif',m=>m.kreatif],
+    ['Dorongan Berprestasi',m=>m.prestasi],['Ketangguhan Kerja',m=>m.tangguh],['Kepemilikan',m=>m.kepemilikan],
+    ['Kepemimpinan Tim',m=>m.memimpin],['Kematangan Emosi',m=>m.emosi],
+    ['Perencanaan & Keputusan',m=>m.perencanaan],['Adaptasi & Perubahan',m=>m.adaptasi],
+  ];
+  document.getElementById('hm-body').innerHTML=dims.map(([lbl,fn])=>{
+    const sc=depts.map(d=>{const ms=MGR.filter(m=>m.departement===d);return ms.length?ms.reduce((a,m)=>a+fn(m),0)/ms.length:0;});
+    return`<tr><td>${lbl}</td>${sc.map(v=>{const k=v>=3?'hr':v>=2?'hs':'ht';return`<td><span class="${k}">${v.toFixed(1)}/4</span></td>`;}).join('')}</tr>`;
+  }).join('');
+
+  // Profil grid
+  const teamwork=MGR.filter(m=>['I','S'].some(x=>m.disc_group.includes(x))).length;
+  const individual=MGR.length-teamwork;
+  const strategic=MGR.filter(m=>avgKog(m)>=3.3&&m.iq_general>=110).length;
+  const eksekusi=MGR.length-strategic;
+  document.getElementById('profil-grid').innerHTML=`
+    <div>
+      <div style="font-size:12px;font-weight:700;margin-bottom:10px">Orientasi Kerja</div>
+      ${[['👥 Teamwork-Oriented',teamwork,'#0284C7'],['⚡ Individual-Driven',individual,'#D97706']].map(([l,v,c])=>`
+        <div class="br-row"><div class="br-lb" style="font-size:12px">${l}</div>
+          <div class="br-tr"><div class="br-fi" style="background:${c};width:${v/MGR.length*100}%"></div></div>
+          <div class="br-an" style="color:${c}">${v}</div>
+        </div>`).join('')}
+    </div>
+    <div>
+      <div style="font-size:12px;font-weight:700;margin-bottom:10px">Mode Operasi</div>
+      ${[['📐 Potensi Strategis',strategic,'#7C3AED'],['⚙ Eksekutor Operasional',eksekusi,'#16A34A']].map(([l,v,c])=>`
+        <div class="br-row"><div class="br-lb" style="font-size:12px">${l}</div>
+          <div class="br-tr"><div class="br-fi" style="background:${c};width:${v/MGR.length*100}%"></div></div>
+          <div class="br-an" style="color:${c}">${v}</div>
+        </div>`).join('')}
+    </div>`;
+}
+
+// ── AKSI ─────────────────────────────────────────────────────
+let _ai=false;
+function initAksi(){
+  if(_ai)return;_ai=true;
+  const mpList=MGR.filter(m=>m.fit_score>=70).sort((a,b)=>b.fit_score-a.fit_score);
+  document.getElementById('tbl-mp').innerHTML=mpList.map(m=>`
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--bd)">
+      <div>
+        <div style="font-size:12px;font-weight:700">${esc(m.name)}</div>
+        <div style="font-size:11px;color:var(--abu)">${esc(m.jabatan)} · ${esc(m.departement)}</div>
+      </div>
+      <div style="text-align:right">
+        <div style="font-size:16px;font-weight:800;color:#0284C7">${m.fit_score}</div>
+        <div style="font-size:9px;color:var(--abu)">Fit Score</div>
+      </div>
+    </div>`).join('') || '<div style="font-size:12px;color:var(--abu);padding:10px 0">Belum ada kandidat Medium Potential</div>';
+
+  // Top gaps
+  const gaps=[
+    ['Pemecahan Masalah',MGR.filter(m=>m.masalah<3).length],
+    ['Berpikir Kreatif',MGR.filter(m=>m.kreatif<3).length],
+    ['Kepemimpinan Tim',MGR.filter(m=>m.memimpin<3).length],
+    ['Perencanaan & Keputusan',MGR.filter(m=>m.perencanaan<3).length],
+    ['Adaptasi & Perubahan',MGR.filter(m=>m.adaptasi<3).length],
+    ['Dorongan Berprestasi',MGR.filter(m=>m.prestasi<3).length],
+    ['Kepemilikan',MGR.filter(m=>m.kepemilikan<3).length],
+  ].sort((a,b)=>b[1]-a[1]);
+  document.getElementById('top-gap').innerHTML=gaps.map(([lbl,cnt])=>`
+    <div class="br-row" style="margin-bottom:7px">
+      <div class="br-lb" style="font-size:12px">${lbl}</div>
+      <div class="br-tr"><div class="br-fi" style="background:${cnt>=14?'#DC2626':cnt>=10?'#D97706':'#16A34A'};width:${cnt/MGR.length*100}%"></div></div>
+      <div class="br-an" style="color:${cnt>=14?'#DC2626':cnt>=10?'#D97706':'#16A34A'}">${cnt}/${MGR.length}</div>
+    </div>`).join('');
+
+  // Action table
+  document.getElementById('tbl-ak-body').innerHTML=[...MGR].sort((a,b)=>b.fit_score-a.fit_score).map(m=>`
+    <tr>
+      <td style="font-weight:600">${esc(m.name.split(' ').slice(0,2).join(' '))}</td>
+      <td style="font-size:11px">${esc(m.jabatan.substring(0,25))}<br><span style="color:var(--abu)">${esc(m.departement)}</span></td>
+      <td><span style="font-weight:800;color:${wPt(m.fit_score)}">${m.fit_score}</span></td>
+      <td><span class="br ${fitCls(m.fit_score)}" style="font-size:10px">${fitLabel(m.fit_score)}</span></td>
+      <td style="font-size:11px;max-width:180px">${esc(m.highlight.substring(0,70))}...</td>
+      <td style="font-size:11px;max-width:160px">${esc((m.rekom_atasan.split('\n')[0]||'').replace(/^\d+\.\s*/,'').substring(0,70))}...</td>
+    </tr>`).join('');
+}
+
+// ── INIT ─────────────────────────────────────────────────────
+initOverview();
+renderCards();
+</script>
+</body>
+</html>
